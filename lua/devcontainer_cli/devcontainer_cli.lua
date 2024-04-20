@@ -1,6 +1,6 @@
 local config = require("devcontainer_cli.config")
-local windows_utils = require("devcontainer_cli.windows_utils")
 local folder_utils = require("devcontainer_cli.folder_utils")
+local devcontainer_utils = require("devcontainer_cli.devcontainer_utils")
 
 local M = {}
 
@@ -21,41 +21,18 @@ local function define_autocommands()
 end
 
 function M.up()
-  if not folder_utils.folder_exists(config.devcontainer_folder) then
-    print(
-      "Devcontainer folder not available: "
-        .. config.devcontainer_folder
-        .. ". devconatiner_cli_plugin plugin cannot be used"
+  -- bringup the devcontainer
+  devcontainer_parent = folder_utils.get_root(config.toplevel)
+  if devcontainer_parent == nil then
+    prev_win = vim.api.nvim_get_current_win()
+    vim.notify(
+      "Devcontainer folder not available. devconatiner_cli_plugin plugin cannot be used",
+        vim.log.levels.ERROR
     )
     return
-  else
-    print("Devcontainer folder detected. Path: " .. config.devcontainer_folder)
   end
 
-  local command = config.nvim_plugin_folder .. "/bin/spawn_devcontainer.sh"
-
-  if config.remove_existing_container then
-    command = command .. " --remove-existing-container"
-  end
-  command = command .. " --root_directory " .. folder_utils.get_root_folder()
-  command = command .. " --setup-environment-repo " .. config.setup_environment_repo
-  command = command .. " --setup-environment-dir " .. '"' .. config.setup_environment_directory .. '"'
-  command = command .. " --setup-environment-install-command " .. '"' .. config.setup_environment_install_command .. '"'
-  command = command .. " --nvim-dotfiles-repo " .. '"' .. config.nvim_dotfiles_repo .. '"'
-  command = command .. " --nvim-dotfiles-branch " .. '"' .. config.nvim_dotfiles_branch .. '"'
-  command = command .. " --nvim-dotfiles-directory " .. '"' .. config.nvim_dotfiles_directory .. '"'
-  command = command .. " --nvim-dotfiles-install-command " .. '"' .. config.nvim_dotfiles_install_command .. '"'
-
-  print("Spawning devcontainer with command: " .. command)
-  windows_utils.create_floating_terminal(command, {
-    on_success = function(win_id)
-      vim.notify("A devcontainer has been successfully spawned by the nvim-devcontainer-cli!", vim.log.levels.INFO)
-      vim.api.nvim_win_close(win_id, true)
-    end,
-    on_fail = function(exit_code)
-      vim.notify("A devcontainer has failed to spawn! exit_code: " .. exit_code, vim.log.levels.ERROR)
-    end,
-  })
+  devcontainer_utils.bringup(devcontainer_parent)
 end
 
 function M.connect()

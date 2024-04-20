@@ -51,10 +51,18 @@ This plugin has been inspired by the work previously done by [esensar](https://g
 {
   "arnaupv/nvim-devcontainer-cli",
   opts = {
+    -- whather to verify that the final devcontainer should be run
+    interactive = false,
+    -- search for the devcontainer directory closest to the root in the directory tree
+    toplevel = true,
+    -- Remove existing container each time DevcontainerUp is executed
+    -- If set to True [default_value] it can take extra time as you force to start from scratch
+    remove_existing_container = true,
     -- By default, if no extra config is added, following nvim_dotfiles are
     -- installed: "https://github.com/LazyVim/starter"
     -- This is an example for configuring other nvim_dotfiles inside the docker container
     nvim_dotfiles_repo = "https://github.com/arnaupv/dotfiles.git",
+    nvim_dotfiles_branch = "main", -- branch to clone from nvim_dotfiles_repo 
     nvim_dotfiles_install_command = "cd ~/nvim_dotfiles/ && ./install.sh",
     -- In case you want to change the way the devenvironment is setup, you can also provide your own setup
     setup_environment_repo = "https://github.com/arnaupv/setup-environment",
