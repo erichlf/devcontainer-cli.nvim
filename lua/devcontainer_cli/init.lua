@@ -15,20 +15,32 @@ function M.setup(opts)
   configured = true
 
   -- Docker
-  vim.api.nvim_create_user_command("DevcontainerUp", function(_)
-    -- Try to use opts.args and if empty use "pro"
-    devcontainer_cli.up()
-  end, {
-    nargs = 0,
-    desc = "Up devcontainer using .devcontainer/devcontainer.json",
-  })
+  vim.api.nvim_create_user_command(
+    "DevcontainerUp", 
+    devcontainer_cli.up,
+    {
+      nargs = 0,
+      desc = "Bringup devcontainer.",
+    }
+  )
 
-  vim.api.nvim_create_user_command("DevcontainerConnect", function(_)
-    devcontainer_cli.connect()
-  end, {
-    nargs = 0,
-    desc = "Connect to devcontainer using .devcontainer.json",
-  })
+  vim.api.nvim_create_user_command(
+    "DevcontainerExec", 
+    devcontainer_cli.exec, 
+    {
+      nargs = "?",
+      desc = "Execute command in devcontainer.",
+    }
+  )
+
+  vim.api.nvim_create_user_command(
+    "DevcontainerConnect", 
+    devcontainer_cli.connect,
+    {
+      nargs = 0,
+      desc = "Connect to devcontainer.",
+    }
+  )
 end
 
 return M

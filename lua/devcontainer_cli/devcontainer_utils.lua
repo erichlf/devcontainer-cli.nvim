@@ -129,29 +129,32 @@ local function get_devcontainer_up_cmd(devcontainer_parent)
 
     return nil
   end
-
-  local remote_home = "/home/" .. devcontainer_data.remote_user .. "/"
   
   local command = "devcontainer up "
   if config.remove_existing_container then
     command = command .. "--remove-existing-container"
   end
 
-  -- check the install command for "-" and escape them
-  install_command = config.setup_environment_install_command -- :gsub("-", "\\-")
-
-  command = command .. " --dotfiles-repository '" .. config.setup_environment_repo .. "'"
-  command = command .. " --dotfiles-target-path '" .. remote_home .. config.setup_environment_directory .. "'"
-	command = command .. " --dotfiles-install-command '" .. install_command .. "'"
   command = command .. " --workspace-folder '" .. devcontainer_parent .. "'"
 	command = command .. " --update-remote-user-uid-default off"
 
-  if config.nvim_dotfiles_repo ~= "" then
-    command = command .. " && devcontainer exec --workspace-folder " .. devcontainer_parent
-    command = command .. ' ' .. "sh -c " ..'"' .. "git clone -b " .. config.nvim_dotfiles_branch
-    command = command .. " " .. config.nvim_dotfiles_repo .. " '" .. remote_home .. config.nvim_dotfiles_directory .. "'" 
-    command = command .. " && cd '" .. remote_home .. config.nvim_dotfiles_directory .. "'" 
-    command = command .. " && " .. config.nvim_dotfiles_install_command .. '"'
+  if config.dotfiles_repository == "" or config.dotfiles_repository == nil then
+    return command
+  end
+
+  command = command .. " --dotfiles-repository '" .. config.dotfiles_repository 
+  -- only include the branch if it exists
+  if config.dotfiles_branch ~= "" and config.dotfiles_branch ~= nil then
+    command = command .. " -b " .. config.dotfiles_branch
+  end
+  command = command .. "'"
+
+  if config.dotfiles_targetPath ~= "" and config.dotfiles_targetPath ~= nil then
+    command = command .. " --dotfiles-target-path '" .. config.dotfiles_targetPath .. "'"
+  end
+
+  if config.dotfiles_install_command ~= "" and config.dotfiles_install_command ~= nil then
+    command = command .. " --dotfiles-install-command '" .. config.dotfiles_install_command .. "'"
   end
 
   return command
@@ -167,16 +170,13 @@ function M.bringup(devcontainer_parent)
     return 
   end
 
-  local message = windows_utils.wrap_text(
-      "Devcontainer folder detected. Path: " .. devcontainer_parent .. "\n" ..
-      "Spawning devcontainer with command: " .. command,
-      80
-  )
-
   if config.interactive then
     vim.ui.input(
-      message .. "\n\n" ..
-          "Press q to cancel or any other key to continue\n",
+      windows_utils.wrap_text(
+          "Devcontainer folder detected. Path: " .. devcontainer_parent .. "\n" ..
+          "Spawning devcontainer with command: " .. command,
+          80
+      ) .. "\n\n" .. "Press q to cancel or any other key to continue\n",
       function(input)
         if (input == "q" or input == "Q") then
           vim.notify(
@@ -189,10 +189,27 @@ function M.bringup(devcontainer_parent)
       end
     )
   else
-    vim.notify(message)
     win, buffer = windows_utils.open_floating_window(on_detach)
     exec_command(command)
   end
+end
+
+function M.exec_cmd(cmd, devcontainer_parent)
+  win, buffer = windows_utils.open_floating_window()
+  command = "devcontainer exec --workspace-folder " .. devcontainer_parent
+  command = command .. " " .. cmd
+  exec_command(command)
+end
+
+function M.exec(devcontainer_parent)
+  vim.ui.input(
+    "Enter command:",
+    function(input)
+      if input ~= nil then
+        M.exec_cmd(input, devcontainer_parent)
+      end
+    end
+  )
 end
 
 return M

@@ -20,6 +20,25 @@ local function define_autocommands()
   })
 end
 
+function M.exec(opts)
+  devcontainer_parent = folder_utils.get_root(config.toplevel)
+  if devcontainer_parent == nil then
+    prev_win = vim.api.nvim_get_current_win()
+    vim.notify(
+      "Devcontainer folder not available. devconatiner_cli_plugin plugin cannot be used",
+        vim.log.levels.ERROR
+    )
+    return
+  end
+
+  vim.validate({ args = { opts.args, "string" } })
+  if opts.args == nil or opts.args == "" then
+    devcontainer_utils.exec(devcontainer_parent)
+  else
+    devcontainer_utils.exec_cmd(opts.args, devcontainer_parent)
+  end
+end
+
 function M.up()
   -- bringup the devcontainer
   devcontainer_parent = folder_utils.get_root(config.toplevel)
