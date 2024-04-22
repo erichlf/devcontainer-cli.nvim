@@ -1,5 +1,4 @@
 local config = require("devcontainer_cli.config")
-local folder_utils = require("devcontainer_cli.folder_utils")
 local devcontainer_utils = require("devcontainer_cli.devcontainer_utils")
 
 local M = {}
@@ -23,38 +22,19 @@ end
 -- executes a given command in the devcontainer of the current project directory
 -- @param opts options for executing the command
 function M.exec(opts)
-  devcontainer_parent = folder_utils.get_root(config.toplevel)
-  if devcontainer_parent == nil then
-    prev_win = vim.api.nvim_get_current_win()
-    vim.notify(
-      "Devcontainer folder not available. devconatiner_cli_plugin plugin cannot be used",
-        vim.log.levels.ERROR
-    )
-    return
-  end
+  cwd = vim.loop.cwd()
 
   vim.validate({ args = { opts.args, "string" } })
   if opts.args == nil or opts.args == "" then
-    devcontainer_utils.exec(devcontainer_parent)
+    devcontainer_utils.exec(cwd)
   else
-    devcontainer_utils.exec_cmd(opts.args, devcontainer_parent)
+    devcontainer_utils.exec_cmd(opts.args, cwd)
   end
 end
 
 -- bring up the devcontainer in the current project directory
 function M.up()
-  -- bringup the devcontainer
-  devcontainer_parent = folder_utils.get_root(config.toplevel)
-  if devcontainer_parent == nil then
-    prev_win = vim.api.nvim_get_current_win()
-    vim.notify(
-      "Devcontainer folder not available. devconatiner_cli_plugin plugin cannot be used",
-        vim.log.levels.ERROR
-    )
-    return
-  end
-
-  devcontainer_utils.bringup(devcontainer_parent)
+  devcontainer_utils.bringup(vim.loop.cwd())
 end
 
 function M.connect()

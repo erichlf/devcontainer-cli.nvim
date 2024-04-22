@@ -33,7 +33,8 @@ local on_success = function()
     vim.notify("Devcontainer process succeeded!", vim.log.levels.INFO)
 end
 
--- on_exit callback function to delete the open buffer when devcontainer exits in a neovim terminal
+-- on_exit callback function to delete the open buffer when devcontainer exits 
+-- in a neovim terminal
 -- @param job_id the id of the running job
 -- @param code the exit code
 -- @param event thrown by job
@@ -75,12 +76,14 @@ function spawn_and_execute(cmd)
 end
 
 -- build the initial part of a devcontainer command
--- @param action the action for the devcontainer to perform see man devcontainer 
--- @param devcontainer_parent the location guess for .devcontainer directory
+-- @param action the action for the devcontainer to perform 
+-- (see man devcontainer) 
+-- @param cwd the current working directory. Used as a starting place to find 
+-- .devcontainer directory
 -- @return nil if no devcontainer_parent could be found otherwise 
 -- the basic devcontainer command for the given type
-local function devcontainer_command(action, devcontainer_parent)
-  devcontainer_root = folder_utils.get_root(devcontainer_parent)
+local function devcontainer_command(action, cwd)
+  devcontainer_root = folder_utils.get_root(cwd)
   if devcontainer_root == nil then
     vim.notify("Unable to find devcontainer directory...", vim.log.levels.ERROR)
     return nil
@@ -93,11 +96,12 @@ local function devcontainer_command(action, devcontainer_parent)
 end
 
 -- helper function to generate devcontainer bringup command
--- @param devcontainer_parent the location guess for .devcontainer directory
+-- @param cwd the current working directory. Used as a starting place to find 
+-- .devcontainer directory
 -- @return nil if no devcontainer_parent could be found otherwise the 
 -- devcontainer bringup command
-local function get_devcontainer_up_cmd(devcontainer_parent)
-  local command = devcontainer_command("up", devcontainer_parent)
+local function get_devcontainer_up_cmd(cwd)
+  local command = devcontainer_command("up", cwd)
   if command == nil then
     return command
   end
@@ -130,9 +134,10 @@ local function get_devcontainer_up_cmd(devcontainer_parent)
 end
 
 -- issues command to bringup devcontainer
--- @param devcontainer_parent the location guess for .devcontainer directory
-function M.bringup(devcontainer_parent)
-  local command = get_devcontainer_up_cmd(devcontainer_parent)
+-- @param cwd the current working directory. Used as a starting place to find 
+-- .devcontainer directory
+function M.bringup(cwd)
+  local command = get_devcontainer_up_cmd(cwd)
 
   if command == nil then
     return 
@@ -162,9 +167,10 @@ end
 
 -- execute the given cmd within the given devcontainer_parent
 -- @param cmd the command to issue in the devcontainer terminal
--- @param devcontainer_parent the location guess for .devcontainer directory
-function M.exec_cmd(cmd, devcontainer_parent)
-  command = devcontainer_command("exec", devcontainer_parent)
+-- @param cwd the current working directory. Used as a starting place to find 
+-- .devcontainer directory
+function M.exec_cmd(cmd, cwd)
+  command = devcontainer_command("exec", cwd)
   if command == nil then
     return
   end
@@ -174,8 +180,10 @@ function M.exec_cmd(cmd, devcontainer_parent)
 end
 
 -- execute a given cmd within the given devcontainer_parent
+-- @param cwd the current working directory. Used as a starting place to find 
+-- .devcontainer directory
 -- @param devcontainer_parent the location guess for .devcontainer directory
-function M.exec(devcontainer_parent)
+function M.exec(cwd)
   vim.ui.input(
     "Enter command:",
     function(input)
