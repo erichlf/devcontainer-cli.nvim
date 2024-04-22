@@ -4,6 +4,9 @@ local folder_utils = require("devcontainer_cli.folder_utils")
 
 local M = {}
 
+local terminal_columns = 80 -- number of columns for displaying text
+
+-- window management variables
 local prev_win = -1
 local win = -1
 local buffer = -1
@@ -15,6 +18,8 @@ local on_detach = function()
   buffer = -1
 end
 
+-- on_fail callback
+-- @param exit_code the exit code from the failed job
 local on_fail = function(exit_code)
   vim.notify(
       "Devcontainer process has failed! exit_code: " .. exit_code,
@@ -28,7 +33,10 @@ local on_success = function()
     vim.notify("Devcontainer process succeeded!", vim.log.levels.INFO)
 end
 
---- on_exit callback function to delete the open buffer when devcontainer exits in a neovim terminal
+-- on_exit callback function to delete the open buffer when devcontainer exits in a neovim terminal
+-- @param job_id the id of the running job
+-- @param code the exit code
+-- @param event thrown by job
 local on_exit = function(job_id, code, event)
   if code == 0 then
     on_success()
@@ -39,6 +47,7 @@ local on_exit = function(job_id, code, event)
 end
 
 --- execute command
+-- @param cmd the command to execute in the devcontainer terminal
 local function exec_command(cmd)
   vim.fn.termopen(
     cmd, 
@@ -57,85 +66,45 @@ local function exec_command(cmd)
   vim.api.nvim_set_current_buf(buffer)
 end
 
--- helper function for determine devcontainer specifics
-local function get_devcontainer_data(devcontainer_root)
-  local read_devcontainer 
-    = "devcontainer read-configuration --include-merged-configuration --workspace-folder " .. devcontainer_root 
-  remote_user_cmd = read_devcontainer .. " | jq '.configuration.remoteUser' | tr -d '" .. '"' .. "'"
-  workspace_cmd = read_devcontainer .. " | jq '.workspace.workspaceFolder' | tr -d '" .. '"' .. "'"
-  
-  devcontainer_data = {
-    remote_user = nil,
-    workspace = nil,
-  }
+-- create a new window and execute the given command
+-- @param cmd the command to execute in the devcontainer terminal
+function spawn_and_execute(cmd)
+  prev_win = vim.api.nvim_get_current_win()
+  win, buffer = windows_utils.open_floating_window()
+  exec_command(cmd)
+end
 
-  stderr = ""
-  
-  job1_id = vim.fn.jobstart(
-    remote_user_cmd,
-    {
-      stdout_buffered = true,
-      on_stdout = function(_, data)
-        devcontainer_data.remote_user = data[1]
-        if devcontainer_data.remote_user == " " or devcontainer_data.remote_user == nil then
-          vim.notify(
-            "remote_user: " .. remote_user_cmd .. " " .. " " .. vim.inspect(data),
-            vim.log.levels.ERROR
-          )
-          devcontainer_data.remote_user = nil
-        end
-        vim.notify(
-          "remote user: " .. remote_user_cmd .. " " .. " " .. devcontainer_data.remote_user .. " " .. vim.inspect(data),
-          vim.log.levels.WARN
-        )
-      end
-    }
-  )
+-- build the initial part of a devcontainer command
+-- @param action the action for the devcontainer to perform see man devcontainer 
+-- @param devcontainer_parent the location guess for .devcontainer directory
+-- @return nil if no devcontainer_parent could be found otherwise 
+-- the basic devcontainer command for the given type
+local function devcontainer_command(action, devcontainer_parent)
+  devcontainer_root = folder_utils.get_root(devcontainer_parent)
+  if devcontainer_root == nil then
+    vim.notify("Unable to find devcontainer directory...", vim.log.levels.ERROR)
+    return nil
+  end
 
-  job2_id = vim.fn.jobstart(
-    workspace_cmd,
-    {
-      stdout_buffered = true,
-      on_stdout = function(_, data)
-        devcontainer_data.workspace = data[1]
-        if devcontainer_data.workspace == " " or devcontainer_data.workspace == nil then
-          vim.notify(
-            "workspace: " .. workspace_cmd .. " " .. " " .. vim.inspect(data),
-            vim.log.levels.ERROR
-          )
-          devcontainer_data.workspace = nil
-        end
-        vim.notify(
-          "workspace: " .. remote_user_cmd .. " " .. " " .. devcontainer_data.workspace .. " " .. vim.inspect(data),
-          vim.log.levels.WARN
-        )
-      end
-    }
-  )
-  vim.fn.jobwait({job1_id, job2_id})
+  local command = "devcontainer " .. action
+  command = command .. " --workspace-folder '" .. devcontainer_root .. "'"
 
-  return devcontainer_data
+  return command
 end
 
 -- helper function to generate devcontainer bringup command
+-- @param devcontainer_parent the location guess for .devcontainer directory
+-- @return nil if no devcontainer_parent could be found otherwise the 
+-- devcontainer bringup command
 local function get_devcontainer_up_cmd(devcontainer_parent)
-  local devcontainer_data = get_devcontainer_data(devcontainer_parent)
-
-  if devcontainer_data.remote_user == nil or devcontainer_data.workspace == nil then
-    vim.notify(
-      "Failed to obtain remote user or remote workspace from devcontainer.",
-        vim.log.levels.ERROR
-    )
-
-    return nil
+  local command = devcontainer_command("up", devcontainer_parent)
+  if command == nil then
+    return command
   end
   
-  local command = "devcontainer up "
   if config.remove_existing_container then
-    command = command .. "--remove-existing-container"
+    command = command .. " --remove-existing-container"
   end
-
-  command = command .. " --workspace-folder '" .. devcontainer_parent .. "'"
 	command = command .. " --update-remote-user-uid-default off"
 
   if config.dotfiles_repository == "" or config.dotfiles_repository == nil then
@@ -161,21 +130,19 @@ local function get_devcontainer_up_cmd(devcontainer_parent)
 end
 
 -- issues command to bringup devcontainer
+-- @param devcontainer_parent the location guess for .devcontainer directory
 function M.bringup(devcontainer_parent)
   local command = get_devcontainer_up_cmd(devcontainer_parent)
 
   if command == nil then
-    prev_win = vim.api.nvim_get_current_win()
-
     return 
   end
 
   if config.interactive then
     vim.ui.input(
       windows_utils.wrap_text(
-          "Devcontainer folder detected. Path: " .. devcontainer_parent .. "\n" ..
           "Spawning devcontainer with command: " .. command,
-          80
+          terminal_columns
       ) .. "\n\n" .. "Press q to cancel or any other key to continue\n",
       function(input)
         if (input == "q" or input == "Q") then
@@ -183,24 +150,31 @@ function M.bringup(devcontainer_parent)
             "\nUser cancelled bringing up devcontainer"
           )
         else
-          win, buffer = windows_utils.open_floating_window()
-          exec_command(command)
+          spawn_and_execute(command)
         end
       end
     )
-  else
-    win, buffer = windows_utils.open_floating_window(on_detach)
-    exec_command(command)
+    return
   end
+
+  spawn_and_execute(command)
 end
 
+-- execute the given cmd within the given devcontainer_parent
+-- @param cmd the command to issue in the devcontainer terminal
+-- @param devcontainer_parent the location guess for .devcontainer directory
 function M.exec_cmd(cmd, devcontainer_parent)
-  win, buffer = windows_utils.open_floating_window()
-  command = "devcontainer exec --workspace-folder " .. devcontainer_parent
+  command = devcontainer_command("exec", devcontainer_parent)
+  if command == nil then
+    return
+  end
+
   command = command .. " " .. cmd
-  exec_command(command)
+  spawn_and_execute(command)
 end
 
+-- execute a given cmd within the given devcontainer_parent
+-- @param devcontainer_parent the location guess for .devcontainer directory
 function M.exec(devcontainer_parent)
   vim.ui.input(
     "Enter command:",

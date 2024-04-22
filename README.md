@@ -73,7 +73,6 @@ make assumptions about how you work.
 
 - [docker](https://docs.docker.com/get-docker/)
 - [devcontainer-cli](https://github.com/devcontainers/cli#npm-install)
-- [jq](https://jqlang.github.io/jq/download/)
 
 # 🔧 Installation
 
