@@ -95,7 +95,7 @@ make assumptions about how you work.
     dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
     dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
     dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
-    dotfiles_targetPath = "install.sh", -- script to run after dotfiles are cloned
+    dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
   },
   keys = {
     -- stylua: ignore
