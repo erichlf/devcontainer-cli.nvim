@@ -4,6 +4,8 @@ local devcontainer_cli = require("devcontainer_cli.devcontainer_cli")
 local config = require("devcontainer_cli.config")
 local configured = false
 
+-- setup the devcontainer-cli plugin
+-- @param opts the options to set (see config/init.lua)
 function M.setup(opts)
   config.setup(opts)
 

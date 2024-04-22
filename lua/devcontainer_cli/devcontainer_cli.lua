@@ -20,6 +20,8 @@ local function define_autocommands()
   })
 end
 
+-- executes a given command in the devcontainer of the current project directory
+-- @param opts options for executing the command
 function M.exec(opts)
   devcontainer_parent = folder_utils.get_root(config.toplevel)
   if devcontainer_parent == nil then
@@ -39,6 +41,7 @@ function M.exec(opts)
   end
 end
 
+-- bring up the devcontainer in the current project directory
 function M.up()
   -- bringup the devcontainer
   devcontainer_parent = folder_utils.get_root(config.toplevel)

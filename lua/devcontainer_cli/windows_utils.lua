@@ -1,5 +1,9 @@
 local M = {}
 
+-- wrao the given text at max_width
+-- @param text the text to wrap
+-- @param max_width the width at which to wrap text
+-- @return the text wrapped
 function M.wrap_text(text, max_width)
   local wrapped_lines = {}
   for line in text:gmatch("[^\n]+") do
@@ -17,6 +21,9 @@ function M.wrap_text(text, max_width)
   return table.concat(wrapped_lines, "\n")
 end
 
+-- create a floating window
+-- @param on_detach call back for when the window is detached
+-- @return the window and buffer numbers
 function M.open_floating_window(on_detach) 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
@@ -50,6 +57,9 @@ function M.open_floating_window(on_detach)
   return win, buf
 end
 
+-- send text to the given buffer
+-- @param text the text to send
+-- @param buffer the buffer to send text to
 function M.send_text(text, buffer)
   local text = vim.split(wrap_text(text, 80), "\n")
 
