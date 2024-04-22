@@ -145,10 +145,13 @@ function M.bringup(cwd)
 
   if config.interactive then
     vim.ui.input(
-      windows_utils.wrap_text(
-          "Spawning devcontainer with command: " .. command,
-          terminal_columns
-      ) .. "\n\n" .. "Press q to cancel or any other key to continue\n",
+      table.join(
+        windows_utils.wrap_text(
+            "Spawning devcontainer with command: " .. command,
+            terminal_columns
+        ) .. "\n\n" .. "Press q to cancel or any other key to continue\n",
+        "\n"
+      ),
       function(input)
         if (input == "q" or input == "Q") then
           vim.notify(
@@ -185,7 +188,7 @@ end
 -- @param devcontainer_parent the location guess for .devcontainer directory
 function M.exec(cwd)
   vim.ui.input(
-    "Enter command:",
+    {"Enter command:"},
     function(input)
       if input ~= nil then
         M.exec_cmd(input, devcontainer_parent)
