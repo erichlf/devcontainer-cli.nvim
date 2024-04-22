@@ -116,12 +116,12 @@ make assumptions about how you work.
     },
     {
       "<leader>Db",
-      ":DevcontainerExec 'cd build && make'<cr>",
+      ":DevcontainerExec cd build && make<cr>",
       desc = "Execute build command in DevContainer",
     },
     {
       "<leader>Dt",
-      ":DevcontainerExec 'cd build && make test'<cr>",
+      ":DevcontainerExec cd build && make test<cr>",
       desc = "Execute test command in DevContainer",
     },
   }
