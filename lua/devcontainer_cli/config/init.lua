@@ -18,6 +18,8 @@ local default_config = {
   dotfiles_targetPath = "~/dotfiles",
   -- command that's executed for installed the dependencies from the setup_environment_repo
   dotfiles_installCommand = "install.sh",
+  -- The number of columns to wrap text at
+  terminal_columns = 80,
 }
 
 local options

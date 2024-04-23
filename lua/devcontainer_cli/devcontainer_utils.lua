@@ -4,8 +4,6 @@ local folder_utils = require("devcontainer_cli.folder_utils")
 
 local M = {}
 
-local terminal_columns = 80 -- number of columns for displaying text
-
 -- window management variables
 local prev_win = -1
 local win = -1
@@ -146,8 +144,7 @@ function M.bringup(cwd)
   if config.interactive then
     vim.ui.input(
       {prompt=windows_utils.wrap_text(
-            "Spawning devcontainer with command: " .. command,
-            terminal_columns
+            "Spawning devcontainer with command: " .. command
         ) .. "\n\n" .. "Press q to cancel or any other key to continue\n"
       },
       function(input)
