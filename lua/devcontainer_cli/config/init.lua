@@ -11,20 +11,15 @@ local default_config = {
   -- If set to True [default_value] it can take extra time as you force to start from scratch
   remove_existing_container = true,
   -- dependencies that have to be installed in the devcontainer (remoteUser = root)
-  setup_environment_repo = "https://github.com/arnaupv/setup-environment",
+  dotfiles_repository = "git@github.com:erichlf/dotfiles",
+  -- branch to checkout for repositories (this is a feature not supported by devcontainers in general, but we do)
+  dotfiles_repository = "devcontainer",
   -- directory for the setup environment
-  setup_environment_directory = "setup_dotfiles",
+  dotfiles_targetPath = "~/dotfiles",
   -- command that's executed for installed the dependencies from the setup_environment_repo
-  setup_environment_install_command = "install.sh",
-
-  -- nvim_dotfiles that will be installed inside the docker devcontainer through the devcontainer cli.
-  nvim_dotfiles_repo = "https://github.com/LazyVim/starter",
-  -- branch to use for the nvim_dotfiles
-  nvim_dotfiles_branch = "main",
-  -- directory where to put the nvim_dotfiles
-  nvim_dotfiles_directory = "nvim_dotfiles",
-  -- nvim_dotfiles_install is the command that needs to be executed to install the dotfiles (it can be any bash command)
-  nvim_dotfiles_install_command = "mkdir -p ~/.config && mv ~/nvim_dotfiles ~/.config/nvim",
+  dotfiles_installCommand = "install.sh",
+  -- The number of columns to wrap text at
+  terminal_columns = 80,
 }
 
 local options

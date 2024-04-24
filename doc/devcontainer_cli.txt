@@ -8,13 +8,15 @@ developing docker containers.
 Development is in progress, but the plugin can already be used.
 
 To find out more:
-https://github.com/arnaupv/nvim-devcontainer-cli
+https://github.com/erichlf/nvim-devcontainer-cli
 
   :h DevcontainerUp 
 
 DevcontainerUp                                                  *DevcontainerUp*
-    Spawns a docker devcontainer, installing neovim and all the required 
-    dependencies for developing your code inside the docker container.
+    Spawns a devcontainer, installing dotfiles in the docker container.
+
+DevcontainerExec                                              *DevcontainerExec*
+    Runs a given command in the projects devcontainer.
 
 DevcontainerConnect                                        *DevcontainerConnect*
     Closes the nvim sessions (all sessions fromt the terminal) and opens a new
