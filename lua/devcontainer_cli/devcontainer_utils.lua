@@ -173,7 +173,7 @@ function M.exec_cmd(cmd, cwd)
     return
   end
 
-  command = command .. " " .. cmd
+  command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
   spawn_and_execute(command)
 end
 
