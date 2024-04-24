@@ -20,7 +20,7 @@ local function define_autocommands()
 end
 
 -- executes a given command in the devcontainer of the current project directory
--- @param opts options for executing the command
+---@param opts options for executing the command
 function M.exec(opts)
   cwd = vim.loop.cwd()
 
@@ -37,9 +37,9 @@ function M.up()
   devcontainer_utils.bringup(vim.loop.cwd())
 end
 
+-- Thanks to the autocommand executed after leaving the UI, after closing the
+-- neovim window the devcontainer will be automatically open in a new terminal
 function M.connect()
-  -- Thanks to the autocommand executed after leaving the UI, after closing the
-  -- neovim window the devcontainer will be automatically open in a new terminal
   define_autocommands()
   vim.cmd("wqa")
 end

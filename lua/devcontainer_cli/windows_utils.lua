@@ -6,8 +6,8 @@ local M = {}
 local terminal_columns = config.terminal_columns 
 
 -- wrap the given text at max_width
--- @param text the text to wrap
--- @return the text wrapped
+---@param text the text to wrap
+---@return the text wrapped
 function M.wrap_text(text)
   local wrapped_lines = {}
   for line in text:gmatch("[^\n]+") do
@@ -26,8 +26,8 @@ function M.wrap_text(text)
 end
 
 -- create a floating window
--- @param on_detach call back for when the window is detached
--- @return the window and buffer numbers
+---@param on_detach call back for when the window is detached
+---@return the window and buffer numbers
 function M.open_floating_window(on_detach) 
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
@@ -64,8 +64,8 @@ function M.open_floating_window(on_detach)
 end
 
 -- send text to the given buffer
--- @param text the text to send
--- @param buffer the buffer to send text to
+---@param text the text to send
+---@param buffer the buffer to send text to
 function M.send_text(text, buffer)
   local text = vim.split(wrap_text(text), "\n")
 

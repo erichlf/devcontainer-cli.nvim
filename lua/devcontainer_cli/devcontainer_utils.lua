@@ -17,7 +17,7 @@ local on_detach = function()
 end
 
 -- on_fail callback
--- @param exit_code the exit code from the failed job
+---@param exit_code the exit code from the failed job
 local on_fail = function(exit_code)
   vim.notify(
       "Devcontainer process has failed! exit_code: " .. exit_code,
@@ -33,9 +33,9 @@ end
 
 -- on_exit callback function to delete the open buffer when devcontainer exits 
 -- in a neovim terminal
--- @param job_id the id of the running job
--- @param code the exit code
--- @param event thrown by job
+---@param job_id the id of the running job
+---@param code the exit code
+---@param event thrown by job
 local on_exit = function(job_id, code, event)
   if code == 0 then
     on_success()
@@ -46,7 +46,7 @@ local on_exit = function(job_id, code, event)
 end
 
 --- execute command
--- @param cmd the command to execute in the devcontainer terminal
+---@param cmd the command to execute in the devcontainer terminal
 local function exec_command(cmd)
   vim.fn.termopen(
     cmd, 
@@ -66,7 +66,7 @@ local function exec_command(cmd)
 end
 
 -- create a new window and execute the given command
--- @param cmd the command to execute in the devcontainer terminal
+---@param cmd the command to execute in the devcontainer terminal
 function spawn_and_execute(cmd)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = windows_utils.open_floating_window()
@@ -74,11 +74,11 @@ function spawn_and_execute(cmd)
 end
 
 -- build the initial part of a devcontainer command
--- @param action the action for the devcontainer to perform 
+---@param action the action for the devcontainer to perform 
 -- (see man devcontainer) 
--- @param cwd the current working directory. Used as a starting place to find 
+---@param cwd the current working directory. Used as a starting place to find 
 -- .devcontainer directory
--- @return nil if no devcontainer_parent could be found otherwise 
+---@return nil if no devcontainer_parent could be found otherwise 
 -- the basic devcontainer command for the given type
 local function devcontainer_command(action, cwd)
   devcontainer_root = folder_utils.get_root(cwd)
@@ -94,9 +94,9 @@ local function devcontainer_command(action, cwd)
 end
 
 -- helper function to generate devcontainer bringup command
--- @param cwd the current working directory. Used as a starting place to find 
+---@param cwd the current working directory. Used as a starting place to find 
 -- .devcontainer directory
--- @return nil if no devcontainer_parent could be found otherwise the 
+---@return nil if no devcontainer_parent could be found otherwise the 
 -- devcontainer bringup command
 local function get_devcontainer_up_cmd(cwd)
   local command = devcontainer_command("up", cwd)
@@ -132,7 +132,7 @@ local function get_devcontainer_up_cmd(cwd)
 end
 
 -- issues command to bringup devcontainer
--- @param cwd the current working directory. Used as a starting place to find 
+---@param cwd the current working directory. Used as a starting place to find 
 -- .devcontainer directory
 function M.bringup(cwd)
   local command = get_devcontainer_up_cmd(cwd)
@@ -164,8 +164,8 @@ function M.bringup(cwd)
 end
 
 -- execute the given cmd within the given devcontainer_parent
--- @param cmd the command to issue in the devcontainer terminal
--- @param cwd the current working directory. Used as a starting place to find 
+---@param cmd the command to issue in the devcontainer terminal
+---@param cwd the current working directory. Used as a starting place to find 
 -- .devcontainer directory
 function M.exec_cmd(cmd, cwd)
   command = devcontainer_command("exec", cwd)
@@ -178,9 +178,9 @@ function M.exec_cmd(cmd, cwd)
 end
 
 -- execute a given cmd within the given devcontainer_parent
--- @param cwd the current working directory. Used as a starting place to find 
+---@param cwd the current working directory. Used as a starting place to find 
 -- .devcontainer directory
--- @param devcontainer_parent the location guess for .devcontainer directory
+---@param devcontainer_parent the location guess for .devcontainer directory
 function M.exec(cwd)
   vim.ui.input(
     {prompt="Enter command:"},
