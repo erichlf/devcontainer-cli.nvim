@@ -20,15 +20,13 @@ local function define_autocommands()
 end
 
 -- executes a given command in the devcontainer of the current project directory
----@param opts options for executing the command
+---@param opts (table) options for executing the command
 function M.exec(opts)
-  cwd = vim.loop.cwd()
-
   vim.validate({ args = { opts.args, "string" } })
   if opts.args == nil or opts.args == "" then
-    devcontainer_utils.exec(cwd)
+    devcontainer_utils.exec()
   else
-    devcontainer_utils.exec_cmd(opts.args, cwd)
+    devcontainer_utils.exec_cmd(opts.args)
   end
 end
 
