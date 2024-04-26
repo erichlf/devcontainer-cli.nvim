@@ -96,6 +96,7 @@ make assumptions about how you work.
     dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
     dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
     dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
+    shell = "bash", -- shell to use when executing commands
   },
   keys = {
     -- stylua: ignore

@@ -3,11 +3,11 @@ local config = require("devcontainer_cli.config")
 local M = {}
 
 -- number of columns for displaying text
-local terminal_columns = config.terminal_columns 
+local terminal_columns = config.terminal_columns
 
 -- wrap the given text at max_width
--- @param text the text to wrap
--- @return the text wrapped
+---@param text (string) the text to wrap
+---@return (string) the text wrapped
 function M.wrap_text(text)
   local wrapped_lines = {}
   for line in text:gmatch("[^\n]+") do
@@ -26,13 +26,13 @@ function M.wrap_text(text)
 end
 
 -- create a floating window
--- @param on_detach call back for when the window is detached
--- @return the window and buffer numbers
-function M.open_floating_window(on_detach) 
+---@param on_detach (function) call back for when the window is detached
+---@return integer, integer the window and buffer numbers
+function M.open_floating_window(on_detach)
   local buf = vim.api.nvim_create_buf(false, true)
   vim.api.nvim_buf_set_option(buf, 'bufhidden', 'wipe')
   vim.api.nvim_buf_set_option(buf, 'filetype', 'devcontainer-cli')
-  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', '<CMD>close<CR>', {}) 
+  vim.api.nvim_buf_set_keymap(buf, 'n', 'q', '<CMD>close<CR>', {})
   vim.api.nvim_buf_set_keymap(buf, 'n', '<esc>', '<CMD>close<CR>', {})
 
   local width = math.ceil(
@@ -52,25 +52,25 @@ function M.open_floating_window(on_detach)
     style = "minimal",
     border = "rounded",
     title = "devcontainer-cli",
-    title_pos = center,
+    title_pos = "center",
     -- noautocommand = false,
   })
   -- Attach autocommand for when the buffer is detached (closed)
   vim.api.nvim_buf_attach(buf, false, {
-      on_detach = on_detach
+    on_detach = on_detach
   })
 
   return win, buf
 end
 
 -- send text to the given buffer
--- @param text the text to send
--- @param buffer the buffer to send text to
+---@param text (string) the text to send
+---@param buffer (integer) the buffer to send text to
 function M.send_text(text, buffer)
-  local text = vim.split(wrap_text(text), "\n")
+  local text_tbl = vim.split(M.wrap_text(text), "\n")
 
   -- Set the content of the buffer
-  vim.api.nvim_buf_set_lines(buffer, 0, -1, false, text)
+  vim.api.nvim_buf_set_lines(buffer, 0, -1, false, text_tbl)
 end
 
 return M

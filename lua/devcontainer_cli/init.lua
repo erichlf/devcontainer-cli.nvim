@@ -5,7 +5,7 @@ local config = require("devcontainer_cli.config")
 local configured = false
 
 -- setup the devcontainer-cli plugin
--- @param opts the options to set (see config/init.lua)
+---@param opts (table) the options to set (see config/init.lua)
 function M.setup(opts)
   config.setup(opts)
 
@@ -18,7 +18,7 @@ function M.setup(opts)
 
   -- Docker
   vim.api.nvim_create_user_command(
-    "DevcontainerUp", 
+    "DevcontainerUp",
     devcontainer_cli.up,
     {
       nargs = 0,
@@ -27,8 +27,8 @@ function M.setup(opts)
   )
 
   vim.api.nvim_create_user_command(
-    "DevcontainerExec", 
-    devcontainer_cli.exec, 
+    "DevcontainerExec",
+    devcontainer_cli.exec,
     {
       nargs = "?",
       desc = "Execute command in devcontainer.",
@@ -36,7 +36,7 @@ function M.setup(opts)
   )
 
   vim.api.nvim_create_user_command(
-    "DevcontainerConnect", 
+    "DevcontainerConnect",
     devcontainer_cli.connect,
     {
       nargs = 0,

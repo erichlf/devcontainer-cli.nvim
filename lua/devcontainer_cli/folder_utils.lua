@@ -6,8 +6,8 @@ local function directory_exists(target_folder)
 end
 
 -- get the devcontainer path for the given directory
--- @param directory the directory containing .devcontainer
--- @return directory if a devcontainer exists within it or nil otherwise
+---@param directory (string) the directory containing .devcontainer
+---@return (string|nil) directory if a devcontainer exists within it or nil otherwise
 local function get_devcontainer_parent(directory)
   local devcontainer_directory = directory .. '/.devcontainer'
 
@@ -15,19 +15,19 @@ local function get_devcontainer_parent(directory)
     return directory
   end
 
-  return nil 
+  return nil
 end
 
 -- get the root directory the devcontainer given a directory
--- @param directory to begin search in 
--- @param toplevel flag indicating if the directory closes to root should be 
+---@param directory (string) to begin search in
+---@param toplevel (boolean) flag indicating if the directory closes to root should be
 -- returned
--- @return the devcontainer directory closest to the root directory
+---@return (string|nil) the devcontainer directory closest to the root directory
 -- or the first if toplevel is true, and nil if no directory was found
 local function get_root_directory(directory, toplevel)
   local parent_directory = vim.fn.fnamemodify(directory, ':h')
-  local devcontainer_parent =  get_devcontainer_parent(directory)
-  
+  local devcontainer_parent = get_devcontainer_parent(directory)
+
   -- Base case: If we've reached the root directory
   if parent_directory == directory then
     return devcontainer_parent
@@ -49,9 +49,9 @@ end
 
 -- find the .devcontainer directory closes to the root upward from the current
 -- directory
--- @param toplevel flag indicating if the directory closes to root should be 
+---@param toplevel (boolean) flag indicating if the directory closes to root should be
 -- returned
--- @return the devcontainer directory closest to the root directory
+---@return (string|nil) the devcontainer directory closest to the root directory
 -- or the first if toplevel is true, and nil if no directory was found
 function M.get_root(toplevel)
   local current_directory = vim.fn.getcwd()

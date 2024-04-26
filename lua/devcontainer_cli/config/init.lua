@@ -8,18 +8,24 @@ local default_config = {
   -- Folder where the nvim-devcontainer-cli is installed
   nvim_plugin_folder = file_path:gsub("init.lua", "") .. "../../../",
   -- Remove existing container each time DevcontainerUp is executed
-  -- If set to True [default_value] it can take extra time as you force to start from scratch
+  -- If set to True [default_value] it can take extra time as you force to 
+  -- start from scratch
   remove_existing_container = true,
-  -- dependencies that have to be installed in the devcontainer (remoteUser = root)
+  -- dotfiles to be downloaded
   dotfiles_repository = "git@github.com:erichlf/dotfiles",
-  -- branch to checkout for repositories (this is a feature not supported by devcontainers in general, but we do)
+  -- branch to checkout for repositories (this is a feature not supported by 
+  -- devcontainers in general, but we do)
   dotfiles_repository = "devcontainer",
   -- directory for the setup environment
   dotfiles_targetPath = "~/dotfiles",
-  -- command that's executed for installed the dependencies from the setup_environment_repo
+  -- command that's executed for installed the dependencies from the 
+  -- setup_environment_repo
   dotfiles_installCommand = "install.sh",
   -- The number of columns to wrap text at
   terminal_columns = 80,
+  -- The shell to use for executing command. Available sh, bash, zsh or any 
+  -- other that uses '-c' to signify a command is to follow
+  shell = 'bash',
 }
 
 local options
