@@ -1,8 +1,8 @@
 # Devcontainer CLI (NVIM Plugin)
 
-Develop your next Repo in a Devcontainer using *nvim* thanks to the 
+Develop your next Repo in a Devcontainer using *nvim* thanks to the
 [Devconatiner CLI](https://github.com/devcontainers/cli) and this plugin
-![](doc/gifs/nvim_devcontainer_cli-description.gif)
+![devcontainer-cli in action](doc/gifs/nvim_devcontainer_cli-description.gif)
 
 As you can see in the GIF above,
 [alacritty](https://github.com/alacritty/alacritty) is being used as a Terminal
@@ -12,6 +12,8 @@ of [my dotfiles](https://github.com/erichlf/dotfiles). The `install.sh` script i
 quite simple, but should be very informative.
 
 ---
+
+## Intro
 
 First, what problem is this plugin trying to solve?
 
@@ -32,8 +34,8 @@ plugins), but you don't want to have to run all the cumbersome commands.
 There are multiple IDEs out there who give you the possibility to execute
 themself inside the Docker container you are developing, fixing the problems
 above, but there is nothing which works out-of-the-box for **nvim**. Recently,
-Microsoft opened the command line tool, 
-([Devconatiner CLI](https://github.com/devcontainers/cli)), which allows developers 
+Microsoft opened the command line tool,
+([Devconatiner CLI](https://github.com/devcontainers/cli)), which allows developers
 to run devcontainers without VScode.
 
 The current **nvim** plugin aims to take advantage of `devcontainer-cli` for
@@ -49,9 +51,10 @@ But, what is happening under the hood?
    [devcontainer.json](.devcontainer/devcontainer.json) and initializing a
    container based on such image.
 2. Once the container is running, your dotfiles are installed in the docker
-   container together with a set of dependencies. To install any dependencies you need either the
-   dotfiles setup script will need to do that or you can use devcontainer features to install them.
-   A very nice devcontainer feature that can do this is 
+   container together with a set of dependencies. To install any dependencies
+   you need either the dotfiles setup script will need to do that or you can
+   use devcontainer features to install them. A very nice devcontainer feature
+   that can do this is
    [apt package](https://github.com/rocker-org/devcontainer-features/tree/main/src/apt-packages).
 3. The last step is connecting inside the container via `devcontainer exec`
    ([here](https://github.com/erichlf/devcontainer-cli.nvim/blob/main/bin/connect_to_devcontainer.sh)).
@@ -69,12 +72,12 @@ This plugin has been inspired by the work previously done by
 The main difference between this version and arnaupv is that it tries to not
 make assumptions about how you work.
 
-# Dependencies
+## Dependencies
 
 - [docker](https://docs.docker.com/get-docker/)
 - [devcontainer-cli](https://github.com/devcontainers/cli#npm-install)
 
-# 🔧 Installation
+## 🔧 Installation
 
 - [lazy.nvim](https://github.com/folke/lazy.nvim)
 
@@ -84,10 +87,12 @@ make assumptions about how you work.
   opts = {
     -- whather to verify that the final devcontainer should be run
     interactive = false,
-    -- search for the devcontainer directory closest to the root in the directory tree
+    -- search for the devcontainer directory closest to the root in the 
+    -- directory tree
     toplevel = true,
     -- Remove existing container each time DevcontainerUp is executed
-    -- If set to True [default_value] it can take extra time as you force to start from scratch
+    -- If set to True [default_value] it can take extra time as you force to
+    -- start from scratch
     remove_existing_container = true,
     -- By default, if no extra config is added, following nvim_dotfiles are
     -- installed: "https://github.com/LazyVim/starter"
@@ -131,7 +136,7 @@ make assumptions about how you work.
 
 The default_config can be found [here](./lua/devcontainer_cli/config/init.lua).
 
-# How to use?
+## How to use?
 
 There are 3 main commands: `:DevcontainerUp`, `:DevcontainerExec`, and `:DevcontainerConnect`.
 
@@ -155,7 +160,7 @@ There are 3 main commands: `:DevcontainerUp`, `:DevcontainerExec`, and `:Devcont
    continue working in your current session and run commands in the
    devcontainer via `DevcontainerExec`.
 
-# Tests
+## Tests
 
 Tests are executed automatically on each PR using Github Actions.
 
@@ -173,12 +178,14 @@ use?** section. Once connected to the devcontainer, execute:
 make test
 ```
 
-# FEATUREs (in order of priority)
+## FEATUREs (in order of priority)
 
 1. [x] Capability to create and run a devcontainer using the [Devconatiner CLI](https://github.com/devcontainers/cli).
 2. [x] Capability to attach in a running devcontainer.
-3. [x] The floating window created during the devcontainer Up process (:DevcontainerUp<cr>) is closed when the process finishes successfully.
+3. [x] The floating window created during the devcontainer Up process
+       (`:DevcontainerUp<cr>`) is closed when the process finishes successfully.
 4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/devcontainer-cli.nvim/issues/1)
-5. [ ] Add unit tests using plenary.busted lua module.
-6. [ ] The logs printed in the floating window when preparing the Devcontainer are saved and easy to access.
+5. [x] Add unit tests using plenary.busted lua module.
+6. [ ] The logs printed in the floating window when preparing the Devcontainer
+       are saved and easy to access.
 7. [ ] Convert bash scripts in lua code.
