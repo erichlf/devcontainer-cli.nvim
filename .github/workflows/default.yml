@@ -6,7 +6,7 @@ env:
   IMAGE_NAME: nvim-devcontainer-cli
 
 jobs:
-  docker:
+  unit-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
