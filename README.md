@@ -1,6 +1,6 @@
-# Devcontainer CLI (Nvim Plugin)
+# Devcontainer CLI (NVIM Plugin)
 
-Develop your next Repo in a Devcontainer using Nvim thanks to the 
+Develop your next Repo in a Devcontainer using *nvim* thanks to the 
 [Devconatiner CLI](https://github.com/devcontainers/cli) and this plugin
 ![](doc/gifs/nvim_devcontainer_cli-description.gif)
 
@@ -54,7 +54,7 @@ But, what is happening under the hood?
    A very nice devcontainer feature that can do this is 
    [apt package](https://github.com/rocker-org/devcontainer-features/tree/main/src/apt-packages).
 3. The last step is connecting inside the container via `devcontainer exec`
-   ([here](https://github.com/erichlf/nvim-devcontainer-cli/blob/main/bin/connect_to_devcontainer.sh)).
+   ([here](https://github.com/erichlf/devcontainer-cli.nvim/blob/main/bin/connect_to_devcontainer.sh)).
 
 The main thing this plugin does is bringup your devcontainer and execute
 commands via a convenient interface. It attempts to stay out of your way and
@@ -63,7 +63,7 @@ allows you to do things as you wish, but gives you the tools to do that easily.
 **Inspiration:**
 
 This plugin has been inspired by the work previously done by
-[arnaupv](https://github.com/arnaupv/nvim-devcontainer-cli),
+[arnaupv](https://github.com/arnaupv/devcontainer-cli.nvim),
 [esensar](https://github.com/esensar/nvim-dev-container) and by
 [jamestthompson3](https://github.com/jamestthompson3/nvim-remote-containers).
 The main difference between this version and arnaupv is that it tries to not
@@ -80,7 +80,7 @@ make assumptions about how you work.
 
 ```lua
 {
-  "erichlf/nvim-devcontainer-cli",
+  "erichlf/devcontainer-cli.nvim",
   opts = {
     -- whather to verify that the final devcontainer should be run
     interactive = false,
@@ -178,7 +178,7 @@ make test
 1. [x] Capability to create and run a devcontainer using the [Devconatiner CLI](https://github.com/devcontainers/cli).
 2. [x] Capability to attach in a running devcontainer.
 3. [x] The floating window created during the devcontainer Up process (:DevcontainerUp<cr>) is closed when the process finishes successfully.
-4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/nvim-devcontainer-cli/issues/1)
+4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/devcontainer-cli.nvim/issues/1)
 5. [ ] Add unit tests using plenary.busted lua module.
 6. [ ] The logs printed in the floating window when preparing the Devcontainer are saved and easy to access.
 7. [ ] Convert bash scripts in lua code.

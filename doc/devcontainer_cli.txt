@@ -1,14 +1,14 @@
 ================================================================================
-                                                         *nvim-devcontainer-cli*
+                                                         *devcontainer-cli.nvim*
 
-nvim-devcontainer-cli is a nvim plugin which intends to use the devcontainer-cli
+devcontainer-cli.nvim is a nvim plugin which intends to use the devcontainer-cli
 developed by microsoft for creating your own local development environments when 
 developing docker containers. 
 
 Development is in progress, but the plugin can already be used.
 
 To find out more:
-https://github.com/erichlf/nvim-devcontainer-cli
+https://github.com/erichlf/devcontainer-cli.nvim
 
   :h DevcontainerUp 
 
