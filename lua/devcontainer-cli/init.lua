@@ -1,7 +1,7 @@
 local M = {}
 
-local devcontainer_cli = require("devcontainer_cli.devcontainer_cli")
-local config = require("devcontainer_cli.config")
+local devcontainer_cli = require("devcontainer-cli.devcontainer_cli")
+local config = require("devcontainer-cli.config")
 local configured = false
 
 -- setup the devcontainer-cli plugin

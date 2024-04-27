@@ -1,6 +1,6 @@
-local config = require("devcontainer_cli.config")
-local windows_utils = require("devcontainer_cli.windows_utils")
-local folder_utils = require("devcontainer_cli.folder_utils")
+local config = require("devcontainer-cli.config")
+local windows_utils = require("devcontainer-cli.windows_utils")
+local folder_utils = require("devcontainer-cli.folder_utils")
 
 local M = {}
 
