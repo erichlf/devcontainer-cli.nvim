@@ -1,4 +1,5 @@
 local folder_utils = require("devcontainer-cli.folder_utils")
+local utils = require("devcontainer-cli.devcontainer_utils")
 
 describe("folder_utils.get_root:", function()
   it(
@@ -39,7 +40,7 @@ describe("folder_utils.get_root:", function()
 
       -- Verify that the project root is at HOME (location of top most devcontainer directory) when toplevel is true
       project_root = os.getenv("HOME")
-      root_folder = folder_utils.get_root(true)
+      local root_folder = folder_utils.get_root(true)
 
       -- From the subfolder, we check that the get_root function returns the folder where the git repo is located instead of the CWD
       print("ROOT: " .. root_folder)
@@ -47,6 +48,15 @@ describe("folder_utils.get_root:", function()
       assert(root_folder == project_root)
 
       vim.fn.chdir(project_root)
+    end
+  )
+end)
+
+describe("devcontainer_utils.exec_command:", function()
+  it(
+    "check if a command can be executed",
+    function()
+      utils.exec_command("echo 'Hello World!'")
     end
   )
 end)

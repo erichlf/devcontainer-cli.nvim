@@ -45,22 +45,30 @@ end
 
 --- execute command
 ---@param cmd (string) the command to execute in the devcontainer terminal
-local function exec_command(cmd)
+function M.exec_command(cmd)
   vim.fn.termopen(
     cmd,
     {
       on_exit = on_exit,
       on_stdout = function(_, _, _)
-        vim.api.nvim_win_call(
-          win,
-          function()
-            vim.cmd("normal! G")
-          end
-        )
+        if win ~= -1 then
+          vim.api.nvim_win_call(
+            win,
+            function()
+              vim.cmd("normal! G")
+            end
+          )
+        else
+          vim.notify("Executed " .. cmd)
+        end
       end,
     }
   )
-  vim.api.nvim_set_current_buf(buffer)
+  if buffer ~= -1 then
+    vim.api.nvim_set_current_buf(buffer)
+  else
+    vim.notify("No buffer created, therefore no output from command will be visible", vim.log.levels.WARN)
+  end
 end
 
 -- create a new window and execute the given command
@@ -68,7 +76,7 @@ end
 local function spawn_and_execute(cmd)
   prev_win = vim.api.nvim_get_current_win()
   win, buffer = windows_utils.open_floating_window(on_detach)
-  exec_command(cmd)
+  M.exec_command(cmd)
 end
 
 -- build the initial part of a devcontainer command

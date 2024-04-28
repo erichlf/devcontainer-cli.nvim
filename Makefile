@@ -8,7 +8,7 @@ test:
 		--headless \
 		--noplugin \
 		-u ${TESTS_INIT} \
-		-c "PlenaryBustedFile tests/devcontainer_cli/folder_utils_spec.lua"
+		-c "PlenaryBustedFile tests/devcontainer_cli/unit_tests.lua"
 
 test_all:
 	@nvim \

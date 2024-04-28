@@ -17,7 +17,7 @@ end
 -- TODO: create a check for DevcontainerExec
 
 function M.check()
-  -- start("devcontainer-cli")
+  start("devcontainer-cli")
   local required_binaries = {
     "docker",
     "devcontainer",
