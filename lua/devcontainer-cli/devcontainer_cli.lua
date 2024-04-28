@@ -1,5 +1,5 @@
-local config = require("devcontainer_cli.config")
-local devcontainer_utils = require("devcontainer_cli.devcontainer_utils")
+local config = require("devcontainer-cli.config")
+local devcontainer_utils = require("devcontainer-cli.devcontainer_utils")
 
 local M = {}
 

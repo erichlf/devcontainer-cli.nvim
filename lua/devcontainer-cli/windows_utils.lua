@@ -1,4 +1,4 @@
-local config = require("devcontainer_cli.config")
+local config = require("devcontainer-cli.config")
 
 local M = {}
 
