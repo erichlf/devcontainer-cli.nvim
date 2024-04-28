@@ -1,5 +1,5 @@
 local config = require("devcontainer-cli.config")
-local devcontainer_utils = require("devcontainer-cli.devcontainer_utils")
+local utils = require("devcontainer-cli.devcontainer_utils")
 
 local M = {}
 
@@ -11,10 +11,12 @@ local function define_autocommands()
       -- It connects with the Devcontainer just after quiting neovim.
       -- TODO: checks that the devcontainer is not already connected
       -- TODO: checks that there is a devcontainer running
-      vim.schedule(function()
-        local command = config.nvim_plugin_folder .. "/bin/connect_to_devcontainer.sh"
-        vim.fn.jobstart(command, { detach = true })
-      end)
+      vim.schedule(
+        function()
+          local command = config.nvim_plugin_folder .. "/bin/connect_to_devcontainer.sh"
+          vim.fn.jobstart(command, { detach = true })
+        end
+      )
     end,
   })
 end
@@ -22,17 +24,37 @@ end
 -- executes a given command in the devcontainer of the current project directory
 ---@param opts (table) options for executing the command
 function M.exec(opts)
-  vim.validate({ args = { opts.args, "string" } })
-  if opts.args == nil or opts.args == "" then
-    devcontainer_utils.exec()
-  else
-    devcontainer_utils.exec_cmd(opts.args)
+  local args = opts.args
+  vim.validate({ args = { args, "string", true } })
+
+  local parsed = {
+    cmd = nil,
+    direction = nil,
+  }
+
+  if args ~= nil then
+    parsed = utils.parse(args)
+
+    vim.validate({
+      cmd = { parsed.cmd, "string", true },
+      direction = { parsed.direction, "string", true },
+    })
+    if parsed.cmd == nil and parsed.direction == nil then
+      parsed.cmd = args
+    end
   end
+
+  utils.exec(parsed.cmd, parsed.direction)
+end
+
+-- toggle the current devcontainer window
+function M.toggle()
+  utils.toggle()
 end
 
 -- bring up the devcontainer in the current project directory
 function M.up()
-  devcontainer_utils.bringup(vim.loop.cwd())
+  utils.bringup()
 end
 
 -- Thanks to the autocommand executed after leaving the UI, after closing the

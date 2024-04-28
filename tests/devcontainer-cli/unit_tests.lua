@@ -1,5 +1,4 @@
 local folder_utils = require("devcontainer-cli.folder_utils")
-local utils = require("devcontainer-cli.devcontainer_utils")
 
 describe("folder_utils.get_root:", function()
   it(
@@ -48,15 +47,6 @@ describe("folder_utils.get_root:", function()
       assert(root_folder == project_root)
 
       vim.fn.chdir(project_root)
-    end
-  )
-end)
-
-describe("devcontainer_utils.exec_command:", function()
-  it(
-    "check if a command can be executed",
-    function()
-      utils.exec_command("echo 'Hello World!'")
     end
   )
 end)

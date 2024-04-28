@@ -36,6 +36,15 @@ function M.setup(opts)
   )
 
   vim.api.nvim_create_user_command(
+    "DevcontainerToggle",
+    devcontainer_cli.toggle,
+    {
+      nargs = 0,
+      desc = "Toggle the current devcontainer window.",
+    }
+  )
+
+  vim.api.nvim_create_user_command(
     "DevcontainerConnect",
     devcontainer_cli.connect,
     {

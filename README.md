@@ -76,6 +76,7 @@ make assumptions about how you work.
 
 - [docker](https://docs.docker.com/get-docker/)
 - [devcontainer-cli](https://github.com/devcontainers/cli#npm-install)
+- [toggleterm](https://github.com/akinsho/toggleterm.nvim)
 
 ## 🔧 Installation
 
@@ -84,6 +85,7 @@ make assumptions about how you work.
 ```lua
 {
   "erichlf/devcontainer-cli.nvim",
+  dependencies = { 'akinsho/toggleterm.nvim' },
   opts = {
     -- whather to verify that the final devcontainer should be run
     interactive = false,
@@ -107,28 +109,33 @@ make assumptions about how you work.
     -- stylua: ignore
     {
       "<leader>Du",
-      ":DevcontainerUp<cr>",
+      ":DevcontainerUp<CR>",
       desc = "Bring up the DevContainer",
     },
     {
       "<leader>Dc",
-      ":DevcontainerConnect<cr>",
+      ":DevcontainerConnect<CR>",
       desc = "Connect to DevContainer",
     },
     {
       "<leader>De",
-      ":DevcontainerExec<cr>",
+      ":DevcontainerExec<CR> direction='vertical'",
       desc = "Execute a command in DevContainer",
     },
     {
       "<leader>Db",
-      ":DevcontainerExec cd build && make<cr>",
+      ":DevcontainerExec cd build && make<CR>",
       desc = "Execute build command in DevContainer",
     },
     {
       "<leader>Dt",
-      ":DevcontainerExec cd build && make test<cr>",
+      ":DevcontainerExec cmd='cd build && make test<CR>' direction='horizontal'",
       desc = "Execute test command in DevContainer",
+    },
+    {
+      "<leader>DT",
+      "<CMD>DevContainerToggle<CR>",
+      desc = "Toggle the current DevContainer Terminal"
     },
   }
 },
@@ -159,6 +166,14 @@ There are 3 main commands: `:DevcontainerUp`, `:DevcontainerExec`, and `:Devcont
    the command: `:DevcontainerConnect`. Alternatively, you could choose to
    continue working in your current session and run commands in the
    devcontainer via `DevcontainerExec`.
+
+During execution using `DevcontainerUp` or `DevcontainerExec` it is possible
+to toggle the terminal via `t` while in normal mode and then to bring it back
+you can run `:DevContainerToggle`. Additionally you could bring it back through
+`:TermSelect`.
+
+During the execution of a Devcontainer process you can also type `q` or `<esc>`
+to kill the process and exit the terminal window.
 
 ## Tests
 
