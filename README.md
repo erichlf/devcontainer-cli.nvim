@@ -119,7 +119,7 @@ make assumptions about how you work.
     },
     {
       "<leader>De",
-      ":DevcontainerExec<CR> direction='vertical'",
+      ":DevcontainerExec direction='vertical'<CR>",
       desc = "Execute a command in DevContainer",
     },
     {
@@ -129,7 +129,7 @@ make assumptions about how you work.
     },
     {
       "<leader>Dt",
-      ":DevcontainerExec cmd='cd build && make test<CR>' direction='horizontal'",
+      ":DevcontainerExec cmd='cd build && make test' direction='horizontal'<CR>",
       desc = "Execute test command in DevContainer",
     },
     {
