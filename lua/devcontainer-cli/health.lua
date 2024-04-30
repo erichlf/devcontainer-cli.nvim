@@ -12,7 +12,16 @@ local function verify_binary(binary_name)
     ok(("`%s` executable found."):format(binary_name))
   end
 end
--- TODO: create a check for DevcontainerUp, this needs to be done after 
+
+local function verify_plugin_dependencies(plugin_name)
+  if require(plugin_name) then
+    ok(("`%s` plugin found."):format(plugin_name))
+  else
+    error(("`%s` plugin not found."):format(plugin_name), ("Add %s to dependencies in Lazy.git"):format(plugin_name))
+  end
+end
+
+-- TODO: create a check for DevcontainerUp, this needs to be done after
 -- creating the ability to stop a container
 -- TODO: create a check for DevcontainerExec
 
@@ -22,8 +31,14 @@ function M.check()
     "docker",
     "devcontainer",
   }
+  local plugin_dependencies = {
+    "toggleterm",
+  }
   for _, bin_name in ipairs(required_binaries) do
     verify_binary(bin_name)
+  end
+  for _, plugin_name in ipairs(plugin_dependencies) do
+    verify_plugin_dependencies(plugin_name)
   end
 end
 
