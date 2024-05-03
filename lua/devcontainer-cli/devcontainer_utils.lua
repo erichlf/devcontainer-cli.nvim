@@ -82,55 +82,48 @@ local function tableContains(tbl, value)
   return false
 end
 
--- create a new window and execute the given command
----@param cmd (string) the command to execute in the devcontainer terminal
----@param direction (string|nil) the placement of the window to be created (float, horizontal, vertical)
----@param size (number|nil) the size of the window to be created 
-local function _spawn_and_execute(cmd, direction, size)
-  direction = vim.F.if_nil(direction, "float")
-  if tableContains(directions, direction) == false then
-    vim.notify("Invalid direction: " .. direction, vim.log.levels.ERROR)
-    return
-  end
+---@class ParsedArgs
+---@field direction string?
+---@field cmd string?
+---@field size number?
 
-  -- create the terminal
-  _terminal = Terminal:new {
-    cmd = cmd,
-    hidden = false,
-    display_name = "devcontainer-cli",
-    direction = vim.F.if_nil(direction, "float"),
-    dir = folder_utils.get_root(config.toplevel),
-    size = size,
-    close_on_exit = false,
-    on_open = function(term)
-      -- ensure that we are not in insert mode
-      vim.cmd("stopinsert")
-      vim.api.nvim_buf_set_keymap(
-        term.bufnr,
-        'n',
-        '<esc>',
-        '<CMD>lua vim.api.nvim_buf_delete(' .. term.bufnr .. ', { force = true } )<CR><CMD>close<CR>',
-        { noremap = true, silent = true }
-      )
-      vim.api.nvim_buf_set_keymap(
-        term.bufnr,
-        'n',
-        'q',
-        '<CMD>lua vim.api.nvim_buf_delete(' .. term.bufnr .. ', { force = true } )<CR><CMD>close<CR>',
-        { noremap = true, silent = true }
-      )
-      vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 't', '<CMD>close<CR>', { noremap = true, silent = true })
-    end,
-    auto_scroll = true,
-    on_exit = function(_, _, code, _)
-      _on_exit(code)
-      _on_detach()
-    end, -- callback for when process closes
+---Take a users command arguments in the format "cmd='git commit' direction='float'" size='42'
+---and parse this into a table of arguments
+---{cmd = "git commit", direction = "float", size = "42"}
+---@param args string
+---@return ParsedArgs
+function M.parse(args)
+  local p = {
+    single = "'(.-)'",
+    double = '"(.-)"',
   }
-  -- start in insert mode
-  _terminal:set_mode(mode.NORMAL)
-  -- now execute the command
-  _terminal:open()
+  local result = {}
+  if args then
+    local quotes = args:match(p.single) and p.single or args:match(p.double) and p.double or nil
+    if quotes then
+      -- 1. extract the quoted command
+      local pattern = "(%S+)=" .. quotes
+      for key, value in args:gmatch(pattern) do
+        quotes = p.single
+        value = vim.fn.shellescape(value)
+        result[vim.trim(key)] = vim.fn.expandcmd(value:match(quotes))
+      end
+      -- 2. then remove it from the rest of the argument string
+      args = args:gsub(pattern, "")
+    end
+
+    for _, part in ipairs(vim.split(args, " ")) do
+      if #part > 1 then
+        local arg = vim.split(part, "=")
+        local key, value = arg[1], arg[2]
+        if key == "size" then
+          value = tonumber(value)
+        end
+        result[key] = value
+      end
+    end
+  end
+  return result
 end
 
 -- build the initial part of a devcontainer command
@@ -187,48 +180,55 @@ local function _get_devcontainer_up_cmd()
   return command
 end
 
----@class ParsedArgs
----@field direction string?
----@field cmd string?
----@field size number?
-
----Take a users command arguments in the format "cmd='git commit' direction='float'" size='42'
----and parse this into a table of arguments
----{cmd = "git commit", direction = "float", size = "42"}
----@param args string
----@return ParsedArgs
-function M.parse(args)
-  local p = {
-    single = "'(.-)'",
-    double = '"(.-)"',
-  }
-  local result = {}
-  if args then
-    local quotes = args:match(p.single) and p.single or args:match(p.double) and p.double or nil
-    if quotes then
-      -- 1. extract the quoted command
-      local pattern = "(%S+)=" .. quotes
-      for key, value in args:gmatch(pattern) do
-        quotes = p.single
-        value = vim.fn.shellescape(value)
-        result[vim.trim(key)] = vim.fn.expandcmd(value:match(quotes))
-      end
-      -- 2. then remove it from the rest of the argument string
-      args = args:gsub(pattern, "")
-    end
-
-    for _, part in ipairs(vim.split(args, " ")) do
-      if #part > 1 then
-        local arg = vim.split(part, "=")
-        local key, value = arg[1], arg[2]
-        if key == "size" then
-          value = tonumber(value)
-        end
-        result[key] = value
-      end
-    end
+-- create a new window and execute the given command
+---@param cmd (string) the command to execute in the devcontainer terminal
+---@param direction (string|nil) the placement of the window to be created (float, horizontal, vertical)
+---@param size (number|nil) the size of the window to be created 
+local function _spawn_and_execute(cmd, direction, size)
+  direction = vim.F.if_nil(direction, "float")
+  if tableContains(directions, direction) == false then
+    vim.notify("Invalid direction: " .. direction, vim.log.levels.ERROR)
+    return
   end
-  return result
+
+  -- create the terminal
+  _terminal = Terminal:new {
+    cmd = cmd,
+    hidden = false,
+    display_name = "devcontainer-cli",
+    direction = vim.F.if_nil(direction, "float"),
+    dir = folder_utils.get_root(config.toplevel),
+    size = size,
+    close_on_exit = false,
+    on_open = function(term)
+      -- ensure that we are not in insert mode
+      vim.cmd("stopinsert")
+      vim.api.nvim_buf_set_keymap(
+        term.bufnr,
+        'n',
+        '<esc>',
+        '<CMD>lua vim.api.nvim_buf_delete(' .. term.bufnr .. ', { force = true } )<CR><CMD>close<CR>',
+        { noremap = true, silent = true }
+      )
+      vim.api.nvim_buf_set_keymap(
+        term.bufnr,
+        'n',
+        'q',
+        '<CMD>lua vim.api.nvim_buf_delete(' .. term.bufnr .. ', { force = true } )<CR><CMD>close<CR>',
+        { noremap = true, silent = true }
+      )
+      vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 't', '<CMD>close<CR>', { noremap = true, silent = true })
+    end,
+    auto_scroll = true,
+    on_exit = function(_, _, code, _)
+      _on_exit(code)
+      _on_detach()
+    end, -- callback for when process closes
+  }
+  -- start in insert mode
+  _terminal:set_mode(mode.NORMAL)
+  -- now execute the command
+  _terminal:open()
 end
 
 -- issues command to bringup devcontainer
@@ -273,6 +273,7 @@ function M._exec_cmd(cmd, direction, size)
   end
 
   command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
+  vim.notify(command)
   _spawn_and_execute(command, direction, size)
 end
 
