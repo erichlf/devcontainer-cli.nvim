@@ -119,7 +119,7 @@ make assumptions about how you work.
     },
     {
       "<leader>De",
-      ":DevcontainerExec direction='vertical'<CR>",
+      ":DevcontainerExec direction='vertical' size='40'<CR>",
       desc = "Execute a command in DevContainer",
     },
     {

@@ -30,6 +30,7 @@ function M.exec(opts)
   local parsed = {
     cmd = nil,
     direction = nil,
+    size = nil,
   }
 
   if args ~= nil then
@@ -38,13 +39,14 @@ function M.exec(opts)
     vim.validate({
       cmd = { parsed.cmd, "string", true },
       direction = { parsed.direction, "string", true },
+      size = { parsed.size, "number", true },
     })
-    if parsed.cmd == nil and parsed.direction == nil then
+    if parsed.cmd == nil and parsed.direction == nil and parsed.size == nil then
       parsed.cmd = args
     end
   end
 
-  utils.exec(parsed.cmd, parsed.direction)
+  utils.exec(parsed.cmd, parsed.direction, parsed.size)
 end
 
 -- toggle the current devcontainer window

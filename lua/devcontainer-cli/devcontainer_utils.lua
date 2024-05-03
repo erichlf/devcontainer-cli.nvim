@@ -45,7 +45,7 @@ local _on_detach = function()
 end
 
 -- on_fail callback
----@param exit_code (integer) the exit code from the failed job
+---@param exit_code (number) the exit code from the failed job
 local _on_fail = function(exit_code)
   vim.notify(
     "Devcontainer process has failed! exit_code: " .. exit_code,
@@ -61,7 +61,7 @@ end
 
 -- on_exit callback function to delete the open buffer when devcontainer exits
 -- in a neovim terminal
----@param code (integer) the exit code
+---@param code (number) the exit code
 local _on_exit = function(code)
   if code == 0 then
     _on_success()
@@ -85,8 +85,8 @@ end
 -- create a new window and execute the given command
 ---@param cmd (string) the command to execute in the devcontainer terminal
 ---@param direction (string|nil) the placement of the window to be created (float, horizontal, vertical)
----@param close_on_exit (boolean|nil) whether to close terminal when process exits
-local function _spawn_and_execute(cmd, direction, close_on_exit)
+---@param size (number|nil) the size of the window to be created 
+local function _spawn_and_execute(cmd, direction, size)
   direction = vim.F.if_nil(direction, "float")
   if tableContains(directions, direction) == false then
     vim.notify("Invalid direction: " .. direction, vim.log.levels.ERROR)
@@ -100,7 +100,8 @@ local function _spawn_and_execute(cmd, direction, close_on_exit)
     display_name = "devcontainer-cli",
     direction = vim.F.if_nil(direction, "float"),
     dir = folder_utils.get_root(config.toplevel),
-    close_on_exit = vim.F.if_nil(close_on_exit, false),
+    size = size,
+    close_on_exit = false,
     on_open = function(term)
       -- ensure that we are not in insert mode
       vim.cmd("stopinsert")
@@ -189,10 +190,11 @@ end
 ---@class ParsedArgs
 ---@field direction string?
 ---@field cmd string?
+---@field size number?
 
----Take a users command arguments in the format "cmd='git commit' direction='float'"
+---Take a users command arguments in the format "cmd='git commit' direction='float'" size='42'
 ---and parse this into a table of arguments
----{cmd = "git commit", direction = "float"}
+---{cmd = "git commit", direction = "float", size = "42"}
 ---@param args string
 ---@return ParsedArgs
 function M.parse(args)
@@ -219,6 +221,9 @@ function M.parse(args)
       if #part > 1 then
         local arg = vim.split(part, "=")
         local key, value = arg[1], arg[2]
+        if key == "size" then
+          value = tonumber(value)
+        end
         result[key] = value
       end
     end
@@ -257,33 +262,26 @@ function M.bringup()
   _spawn_and_execute(command)
 end
 
---- execute command
----@param cmd (string) the command to execute in the devcontainer terminal
----@param direction (string|nil) the placement of the window to be created (left, right, bottom, float)
----@param close_on_exit (boolean|nil) whether to close terminal when process exits
-function M._exec_command(cmd, direction, close_on_exit)
-  _spawn_and_execute(cmd, direction, close_on_exit)
-end
-
 -- execute the given cmd within the given devcontainer_parent
 ---@param cmd (string) the command to issue in the devcontainer terminal
 ---@param direction (string|nil) the placement of the window to be created
 -- (left, right, bottom, float)
-function M._exec_cmd(cmd, direction)
+function M._exec_cmd(cmd, direction, size)
   local command = _devcontainer_command("exec")
   if command == nil then
     return
   end
 
   command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
-  M._exec_command(command, direction, false)
+  _spawn_and_execute(command, direction, size)
 end
 
 -- execute a given cmd within the given devcontainer_parent
 ---@param cmd (string|nil) the command to issue in the devcontainer terminal
 ---@param direction (string|nil) the placement of the window to be created
 -- (left, right, bottom, float)
-function M.exec(cmd, direction)
+---@param size (number|nil) size of the window to create
+function M.exec(cmd, direction, size)
   if _terminal ~= nil then
     vim.notify("There is already a devcontainer process running.", vim.log.levels.WARN)
     return
@@ -294,14 +292,14 @@ function M.exec(cmd, direction)
       { prompt = "Enter command:" },
       function(input)
         if input ~= nil then
-          M._exec_cmd(input, direction)
+          M._exec_cmd(input, direction, size)
         else
           vim.notify("No command received, ignoring.", vim.log.levels.WARN)
         end
       end
     )
   else
-    M._exec_cmd(cmd, direction)
+    M._exec_cmd(cmd, direction, size)
   end
 end
 
