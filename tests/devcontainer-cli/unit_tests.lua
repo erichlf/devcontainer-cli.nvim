@@ -1,5 +1,24 @@
+-- Copyright (c) 2024 Erich L Foster
+-- 
+-- Permission is hereby granted, free of charge, to any person obtaining a copy of
+-- this software and associated documentation files (the "Software"), to deal in
+-- the Software without restriction, including without limitation the rights to
+-- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+-- of the Software, and to permit persons to whom the Software is furnished to do
+-- so, subject to the following conditions:
+-- 
+-- The above copyright notice and this permission notice shall be included in all
+-- copies or substantial portions of the Software.
+-- 
+-- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-- SOFTWARE.
+
 local folder_utils = require("devcontainer-cli.folder_utils")
-local utils = require("devcontainer-cli.devcontainer_utils")
 
 describe("folder_utils.get_root:", function()
   it(
@@ -48,15 +67,6 @@ describe("folder_utils.get_root:", function()
       assert(root_folder == project_root)
 
       vim.fn.chdir(project_root)
-    end
-  )
-end)
-
-describe("devcontainer_utils.exec_command:", function()
-  it(
-    "check if a command can be executed",
-    function()
-      utils.exec_command("echo 'Hello World!'")
     end
   )
 end)

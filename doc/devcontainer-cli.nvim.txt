@@ -19,6 +19,11 @@ DevcontainerUp                                                  *DevcontainerUp*
 DevcontainerExec                                              *DevcontainerExec*
     Runs a given command in the projects devcontainer.
 
+DevcontainerToggle                                          *DevcontainerToggle*
+    Toggles the current devcontainer window. It is expected that only one 
+    devcontainer window is open at a time and so this will only toggle the last
+    devcontainer window.
+
 DevcontainerConnect                                        *DevcontainerConnect*
     Closes the nvim sessions (all sessions fromt the terminal) and opens a new
     terminal which is connected in the docker container, ready to execute the
