@@ -333,4 +333,34 @@ function M.toggle()
   _terminal:toggle()
 end
 
+-- create the necessary functions needed to connect to nvim in a devcontainer
+function M.create_connect_cmd()
+  local au_id = vim.api.nvim_create_augroup("devcontainer-cli.connect", {})
+  local dev_command = _devcontainer_command("exec")
+  if dev_command == nil then
+    return false
+  end
+  dev_command = dev_command .. " " .. config.nvim_binary
+
+  vim.api.nvim_create_autocmd(
+    "UILeave",
+    {
+      group = au_id,
+      callback =
+        function()
+          local connect_command = {config.nvim_plugin_folder .. "/bin/connect_to_devcontainer.sh"}
+          table.insert(connect_command, dev_command)
+          local command = table.concat(connect_command, " ")
+          vim.schedule(
+            function()
+              vim.fn.jobstart(command, { detach = true })
+            end
+          )
+        end
+    }
+  )
+
+  return true
+end
+
 return M
