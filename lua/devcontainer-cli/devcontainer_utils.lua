@@ -348,7 +348,21 @@ function M.create_connect_cmd()
       group = au_id,
       callback =
         function()
-          local connect_command = {config.nvim_plugin_folder .. "/bin/connect_to_devcontainer.sh"}
+          local connect_command = {}
+          if vim.env.TMUX ~= "" then
+            connect_command = {"tmux split-window -h -t \"$TMUX_PANE\""}
+          elseif vim.fn.executable("allacrity") == 1 then
+            connect_command = {"alacritty --working-directory . --title \"Devcontainer\" -e"}
+          elseif vim.fn.executable("gnome-terminal") == 1 then
+            connect_command = {"gnome-terminal --"}
+          elseif vim.fn.executable("iTerm.app") == 1 then
+            connect_command = {"iTerm.app"}
+          elseif vim.fn.executable("Terminal.app") == 1 then
+            connect_command = {"Terminal.app"}
+          else
+            vim.notify("No supported terminal emulator found.", vim.log.levels.ERROR)
+          end
+
           table.insert(connect_command, dev_command)
           local command = table.concat(connect_command, " ")
           vim.schedule(
