@@ -18,11 +18,11 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local config           = require("devcontainer-cli.config")
-local folder_utils     = require("devcontainer-cli.folder_utils")
-local terminal = require("devcontainer-cli.terminal")
+local config       = require("devcontainer-cli.config")
+local folder_utils = require("devcontainer-cli.folder_utils")
+local terminal     = require("devcontainer-cli.terminal")
 
-local M                = {}
+local M            = {}
 
 -- wrap the given text at max_width
 ---@param text (string) the text to wrap
