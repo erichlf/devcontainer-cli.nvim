@@ -18,6 +18,7 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 local utils = require("devcontainer-cli.devcontainer_utils")
+local terminal = require("devcontainer-cli.terminal")
 
 local M = {}
 
@@ -51,7 +52,7 @@ end
 
 -- toggle the current devcontainer window
 function M.toggle()
-  utils.toggle()
+  terminal.toggle()
 end
 
 -- bring up the devcontainer in the current project directory
