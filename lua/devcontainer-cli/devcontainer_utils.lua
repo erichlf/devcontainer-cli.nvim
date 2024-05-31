@@ -1,15 +1,15 @@
 -- Copyright (c) 2024 Erich L Foster
--- 
+--
 -- Permission is hereby granted, free of charge, to any person obtaining a copy of
 -- this software and associated documentation files (the "Software"), to deal in
 -- the Software without restriction, including without limitation the rights to
 -- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
 -- of the Software, and to permit persons to whom the Software is furnished to do
 -- so, subject to the following conditions:
--- 
+--
 -- The above copyright notice and this permission notice shall be included in all
 -- copies or substantial portions of the Software.
--- 
+--
 -- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 -- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 -- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -18,26 +18,11 @@
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
 
-local config           = require("devcontainer-cli.config")
-local folder_utils     = require("devcontainer-cli.folder_utils")
-local Terminal         = require('toggleterm.terminal').Terminal
-local mode             = require('toggleterm.terminal').mode
+local config       = require("devcontainer-cli.config")
+local folder_utils = require("devcontainer-cli.folder_utils")
+local terminal     = require("devcontainer-cli.terminal")
 
-local M                = {}
-
--- valid window directions
-local directions = {
-  "float",
-  "horizontal",
-  "tab",
-  "vertical",
-}
-
--- window management variables
-local _terminal        = nil
---
--- number of columns for displaying text
-local terminal_columns = config.terminal_columns
+local M            = {}
 
 -- wrap the given text at max_width
 ---@param text (string) the text to wrap
@@ -47,7 +32,7 @@ local function _wrap_text(text)
   for line in text:gmatch("[^\n]+") do
     local current_line = ""
     for word in line:gmatch("%S+") do
-      if #current_line + #word <= terminal_columns then
+      if #current_line + #word <= terminal.columns then
         current_line = current_line .. word .. " "
       else
         table.insert(wrapped_lines, current_line)
@@ -57,49 +42,6 @@ local function _wrap_text(text)
     table.insert(wrapped_lines, current_line)
   end
   return table.concat(wrapped_lines, "\n")
-end
-
--- window the created window detaches set things back to -1
-local _on_detach = function()
-  _terminal = nil
-end
-
--- on_fail callback
----@param exit_code (number) the exit code from the failed job
-local _on_fail = function(exit_code)
-  vim.notify(
-    "Devcontainer process has failed! exit_code: " .. exit_code,
-    vim.log.levels.ERROR
-  )
-
-  vim.cmd("silent! :checktime")
-end
-
-local _on_success = function()
-  vim.notify("Devcontainer process succeeded!", vim.log.levels.INFO)
-end
-
--- on_exit callback function to delete the open buffer when devcontainer exits
--- in a neovim terminal
----@param code (number) the exit code
-local _on_exit = function(code)
-  if code == 0 then
-    _on_success()
-    return
-  end
-
-  _on_fail(code)
-end
-
--- check if the value is in the given table
-local function tableContains(tbl, value)
-  for _, item in ipairs(tbl) do
-    if item == value then
-      return true
-    end
-  end
-
-  return false
 end
 
 ---@class ParsedArgs
@@ -200,57 +142,6 @@ local function _get_devcontainer_up_cmd()
   return command
 end
 
--- create a new window and execute the given command
----@param cmd (string) the command to execute in the devcontainer terminal
----@param direction (string|nil) the placement of the window to be created (float, horizontal, vertical)
----@param size (number|nil) the size of the window to be created 
-local function _spawn_and_execute(cmd, direction, size)
-  direction = vim.F.if_nil(direction, "float")
-  if tableContains(directions, direction) == false then
-    vim.notify("Invalid direction: " .. direction, vim.log.levels.ERROR)
-    return
-  end
-
-  -- create the terminal
-  _terminal = Terminal:new {
-    cmd = cmd,
-    hidden = false,
-    display_name = "devcontainer-cli",
-    direction = vim.F.if_nil(direction, "float"),
-    dir = folder_utils.get_root(config.toplevel),
-    size = size,
-    close_on_exit = false,
-    on_open = function(term)
-      -- ensure that we are not in insert mode
-      vim.cmd("stopinsert")
-      vim.api.nvim_buf_set_keymap(
-        term.bufnr,
-        'n',
-        '<esc>',
-        '<CMD>lua vim.api.nvim_buf_delete(' .. term.bufnr .. ', { force = true } )<CR><CMD>close<CR>',
-        { noremap = true, silent = true }
-      )
-      vim.api.nvim_buf_set_keymap(
-        term.bufnr,
-        'n',
-        'q',
-        '<CMD>lua vim.api.nvim_buf_delete(' .. term.bufnr .. ', { force = true } )<CR><CMD>close<CR>',
-        { noremap = true, silent = true }
-      )
-      vim.api.nvim_buf_set_keymap(term.bufnr, 'n', 't', '<CMD>close<CR>', { noremap = true, silent = true })
-    end,
-    auto_scroll = true,
-    on_exit = function(_, _, code, _)
-      _on_exit(code)
-      _on_detach()
-    end, -- callback for when process closes
-  }
-  -- start in insert mode
-  _terminal:set_mode(mode.NORMAL)
-  -- now execute the command
-  _terminal:open()
-end
-
 -- issues command to bringup devcontainer
 function M.bringup()
   local command = _get_devcontainer_up_cmd()
@@ -272,14 +163,14 @@ function M.bringup()
             "\nUser cancelled bringing up devcontainer"
           )
         else
-          _spawn_and_execute(command)
+          terminal.spawn(command)
         end
       end
     )
     return
   end
 
-  _spawn_and_execute(command)
+  terminal.spawn(command)
 end
 
 -- execute the given cmd within the given devcontainer_parent
@@ -294,7 +185,7 @@ function M._exec_cmd(cmd, direction, size)
 
   command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
   vim.notify(command)
-  _spawn_and_execute(command, direction, size)
+  terminal.spawn(command, direction, size)
 end
 
 -- execute a given cmd within the given devcontainer_parent
@@ -303,7 +194,7 @@ end
 -- (left, right, bottom, float)
 ---@param size (number|nil) size of the window to create
 function M.exec(cmd, direction, size)
-  if _terminal ~= nil then
+  if terminal.is_open() then
     vim.notify("There is already a devcontainer process running.", vim.log.levels.WARN)
     return
   end
@@ -324,13 +215,48 @@ function M.exec(cmd, direction, size)
   end
 end
 
--- toggle the current terminal
-function M.toggle()
-  if _terminal == nil then
-    vim.notify("No devcontainer window to toggle.", vim.log.levels.WARN)
-    return
+-- create the necessary functions needed to connect to nvim in a devcontainer
+function M.create_connect_cmd()
+  local au_id = vim.api.nvim_create_augroup("devcontainer-cli.connect", {})
+  local dev_command = _devcontainer_command("exec")
+  if dev_command == nil then
+    return false
   end
-  _terminal:toggle()
+  dev_command = dev_command .. " " .. config.nvim_binary
+
+  vim.api.nvim_create_autocmd(
+    "UILeave",
+    {
+      group = au_id,
+      callback =
+          function()
+            local connect_command = {}
+            if vim.env.TMUX ~= "" then
+              connect_command = { "tmux split-window -h -t \"$TMUX_PANE\"" }
+            elseif vim.fn.executable("allacrity") == 1 then
+              connect_command = { "alacritty --working-directory . --title \"Devcontainer\" -e" }
+            elseif vim.fn.executable("gnome-terminal") == 1 then
+              connect_command = { "gnome-terminal --" }
+            elseif vim.fn.executable("iTerm.app") == 1 then
+              connect_command = { "iTerm.app" }
+            elseif vim.fn.executable("Terminal.app") == 1 then
+              connect_command = { "Terminal.app" }
+            else
+              vim.notify("No supported terminal emulator found.", vim.log.levels.ERROR)
+            end
+
+            table.insert(connect_command, dev_command)
+            local command = table.concat(connect_command, " ")
+            vim.schedule(
+              function()
+                vim.fn.jobstart(command, { detach = true })
+              end
+            )
+          end
+    }
+  )
+
+  return true
 end
 
 return M

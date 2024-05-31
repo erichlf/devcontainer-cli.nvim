@@ -35,7 +35,7 @@ local default_config = {
   dotfiles_repository = "git@github.com:erichlf/dotfiles",
   -- branch to checkout for repositories (this is a feature not supported by 
   -- devcontainers in general, but we do)
-  dotfiles_repository = "devcontainer",
+  dotfiles_branch = "main",
   -- directory for the setup environment
   dotfiles_targetPath = "~/dotfiles",
   -- command that's executed for installed the dependencies from the 
@@ -43,9 +43,14 @@ local default_config = {
   dotfiles_installCommand = "install.sh",
   -- The number of columns to wrap text at
   terminal_columns = 80,
+  -- The particular binary to use for connecting to in the devcontainer
+  -- Most likely this should remain nvim
+  nvim_binary = "nvim",
   -- The shell to use for executing command. Available sh, bash, zsh or any 
   -- other that uses '-c' to signify a command is to follow
   shell = 'bash',
+  -- The name of the socket file to use
+  port = "7777",
 }
 
 local options
