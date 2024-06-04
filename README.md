@@ -207,6 +207,6 @@ make test
        (`:DevcontainerUp<cr>`) is closed when the process finishes successfully.
 4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/devcontainer-cli.nvim/issues/1)
 5. [x] Add unit tests using plenary.busted lua module.
-6. [ ] The logs printed in the floating window when preparing the Devcontainer
+6. [x] The logs printed in the floating window when preparing the Devcontainer
        are saved and easy to access.
 7. [x] Convert bash scripts in lua code.

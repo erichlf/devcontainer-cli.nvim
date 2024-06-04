@@ -1,13 +1,14 @@
-local config           = require("devcontainer-cli.config")
-local folder_utils     = require("devcontainer-cli.folder_utils")
+local config       = require("devcontainer-cli.config")
+local folder_utils = require("devcontainer-cli.folder_utils")
+local log          = require("devcontainer-cli.log")
 
-local Terminal         = require('toggleterm.terminal').Terminal
-local mode             = require('toggleterm.terminal').mode
+local Terminal     = require('toggleterm.terminal').Terminal
+local mode         = require('toggleterm.terminal').mode
 
-local M                = {}
+local M            = {}
 
 -- valid window directions
-M.directions           = {
+M.directions       = {
   "float",
   "horizontal",
   "tab",
@@ -15,32 +16,29 @@ M.directions           = {
 }
 
 -- window management variables
-local _terminal        = nil
+local _terminal    = nil
 
 -- when the created window detaches set things back to -1
-local _on_detach       = function()
+local _on_detach   = function()
   _terminal = nil
 end
 
 -- on_fail callback
 ---@param exit_code (number) the exit code from the failed job
-local _on_fail         = function(exit_code)
-  vim.notify(
-    "Devcontainer process has failed! exit_code: " .. exit_code,
-    vim.log.levels.ERROR
-  )
+local _on_fail     = function(exit_code)
+  log.error("Devcontainer process has failed! exit_code: " .. exit_code)
 
   vim.cmd("silent! :checktime")
 end
 
-local _on_success      = function()
-  vim.notify("Devcontainer process succeeded!", vim.log.levels.INFO)
+local _on_success  = function()
+  log.INFO("Devcontainer process succeeded!")
 end
 
 -- on_exit callback function to delete the open buffer when devcontainer exits
 -- in a neovim terminal
 ---@param code (number) the exit code
-local _on_exit         = function(code)
+local _on_exit     = function(code)
   if code == 0 then
     _on_success()
     return
@@ -49,7 +47,7 @@ local _on_exit         = function(code)
   _on_fail(code)
 end
 
-local _on_open         = function(term)
+local _on_open     = function(term)
   -- ensure that we are not in insert mode
   vim.cmd("stopinsert")
   vim.api.nvim_buf_set_keymap(
@@ -90,7 +88,7 @@ M.columns = config.terminal_columns
 function M.spawn(cmd, direction, size)
   direction = vim.F.if_nil(direction, "float")
   if tableContains(M.directions, direction) == false then
-    vim.notify("Invalid direction: " .. direction, vim.log.levels.ERROR)
+    log.error("Invalid direction: " .. direction)
     return
   end
 

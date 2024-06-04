@@ -20,10 +20,9 @@
 
 local M = {}
 
-local start = vim.health.start or vim.health.report_start
-local ok = vim.health.ok or vim.health.report_ok
-local warn = vim.health.warn or vim.health.report_warn
-local error = vim.health.error or vim.health.report_error
+local start = vim.health.start or vim.health.start
+local ok = vim.health.ok or vim.health.ok
+local error = vim.health.error or vim.health.error
 
 local function verify_binary(binary_name)
   if vim.fn.executable(binary_name) ~= 1 then
