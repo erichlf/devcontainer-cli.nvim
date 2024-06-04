@@ -2,7 +2,7 @@
 
 Develop your next Repo in a Devcontainer using *nvim* thanks to the
 [Devconatiner CLI](https://github.com/devcontainers/cli) and this plugin
-![devcontainer-cli in action](doc/gifs/nvim_devcontainer_cli-description.gif)
+![devcontainer-cli in action](doc/gifs/devcontainer-cli-description.gif)
 
 As you can see in the GIF above, guake with tmux is being used. Any of the ones
 recommended [here](https://www.lazyvim.org/) would work. For dotfiles setup I created
