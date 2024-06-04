@@ -14,7 +14,8 @@
 		"DEV_WORKSPACE": "${containerWorkspaceFolder}",
   },
   "mounts": [
-		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/my-app/.ssh,readonly",
+// unfortunately the runner for ci will fail with this mount so comment it out
+//		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/my-app/.ssh,readonly",
   ],
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
