@@ -49,8 +49,6 @@ local default_config = {
   -- The shell to use for executing command. Available sh, bash, zsh or any 
   -- other that uses '-c' to signify a command is to follow
   shell = 'bash',
-  -- The name of the socket file to use
-  port = "7777",
 }
 
 local options

@@ -97,13 +97,16 @@ make assumptions about how you work.
     -- start from scratch
     remove_existing_container = true,
     -- By default, if no extra config is added, following nvim_dotfiles are
-    -- installed: "https://github.com/LazyVim/starter"
+    -- installed: "https://github.com/erichlf/dotfiles"
     -- This is an example for configuring other dotfiles inside the docker container
     dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
     dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
     dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
     dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
     shell = "bash", -- shell to use when executing commands
+    -- The particular binary to use for connecting to in the devcontainer
+    -- Most likely this should remain nvim
+    nvim_binary = "nvim",
   },
   keys = {
     -- stylua: ignore
@@ -203,4 +206,4 @@ make test
 5. [x] Add unit tests using plenary.busted lua module.
 6. [ ] The logs printed in the floating window when preparing the Devcontainer
        are saved and easy to access.
-7. [ ] Convert bash scripts in lua code.
+7. [x] Convert bash scripts in lua code.
