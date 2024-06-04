@@ -10,10 +10,15 @@
   "workspaceMount": "source=${localWorkspaceFolder},target=/home/my-app/.local/share/nvim/lazy/nvim-devcontainer-cli/,type=bind",
   "workspaceFolder": "/home/my-app/.local/share/nvim/lazy/nvim-devcontainer-cli/",
   "remoteUser": "my-app",
-  "mounts": [],
+	"containerEnv": {
+		"DEV_WORKSPACE": "${containerWorkspaceFolder}",
+  },
+  "mounts": [
+		"type=bind,source=${localEnv:HOME}/.ssh,target=/home/my-app/.ssh,readonly",
+  ],
 	"features": {
 		"ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
-			"packages": "neovim,stow,zsh,fzf"
+			"packages": "neovim,stow,zsh,fzf,python3-pip"
 		}
 	}
 }

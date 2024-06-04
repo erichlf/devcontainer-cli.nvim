@@ -134,7 +134,7 @@ make assumptions about how you work.
       -- installed: "https://github.com/erichlf/dotfiles"
       -- This is an example for configuring other dotfiles inside the docker container
       dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
-      dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
+      dotfiles_branch = "devcontainer-cli", -- branch to clone from dotfiles_repository`
       dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
       dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
       shell = "bash", -- shell to use when executing commands
