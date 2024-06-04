@@ -17,10 +17,11 @@
 -- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
-local utils = require("devcontainer-cli.devcontainer_utils")
+local utils    = require("devcontainer-cli.devcontainer_utils")
 local terminal = require("devcontainer-cli.terminal")
+local log      = require("devcontainer-cli.log")
 
-local M = {}
+local M        = {}
 
 -- executes a given command in the devcontainer of the current project directory
 ---@param opts (table) options for executing the command
@@ -64,7 +65,7 @@ end
 -- neovim window the devcontainer will be automatically open in a new terminal
 function M.connect()
   if not utils.create_connect_cmd() then
-    vim.notify("Failed to create autocommand", vim.log.levels.ERROR)
+    log.error("Failed to create autocommand")
     return
   end
 

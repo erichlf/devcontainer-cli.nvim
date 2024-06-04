@@ -2,14 +2,17 @@
 
 Develop your next Repo in a Devcontainer using *nvim* thanks to the
 [Devconatiner CLI](https://github.com/devcontainers/cli) and this plugin
-![devcontainer-cli in action](doc/gifs/nvim_devcontainer_cli-description.gif)
+![devcontainer-cli in action](doc/gifs/devcontainer-cli-description.gif)
 
-As you can see in the GIF above,
-[alacritty](https://github.com/alacritty/alacritty) is being used as a Terminal
-Emulator. Any of the ones recommended [here](https://www.lazyvim.org/) would
-work. For dotfiles setup I would recommend looking at the `devcontainer` branch
-of [my dotfiles](https://github.com/erichlf/dotfiles). The `install.sh` script is
-quite simple, but should be very informative.
+As you can see in the GIF above, guake with tmux is being used. Any of the ones
+recommended [here](https://www.lazyvim.org/) would work. For dotfiles setup I created
+a version of my dotfiles that doesn't have any private submodules. These dotfiles
+are probably more than what anyone would want, but if feel free to use them. The
+one gotcha with them is that it requires the environment variable DEV_WORKSPACE
+to be set. I would recommend looking at the `devcontainer-cli` branch of
+[my dotfiles](https://github.com/erichlf/dotfiles). The `install.sh` script ends
+up calling `script/devcontainer-cli` which is quite simple, but should get you
+some pretty good ideas of how things can be setup.
 
 ---
 
@@ -86,28 +89,6 @@ make assumptions about how you work.
 {
   "erichlf/devcontainer-cli.nvim",
   dependencies = { 'akinsho/toggleterm.nvim' },
-  opts = {
-    -- whather to verify that the final devcontainer should be run
-    interactive = false,
-    -- search for the devcontainer directory closest to the root in the 
-    -- directory tree
-    toplevel = true,
-    -- Remove existing container each time DevcontainerUp is executed
-    -- If set to True [default_value] it can take extra time as you force to
-    -- start from scratch
-    remove_existing_container = true,
-    -- By default, if no extra config is added, following nvim_dotfiles are
-    -- installed: "https://github.com/erichlf/dotfiles"
-    -- This is an example for configuring other dotfiles inside the docker container
-    dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
-    dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
-    dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
-    dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
-    shell = "bash", -- shell to use when executing commands
-    -- The particular binary to use for connecting to in the devcontainer
-    -- Most likely this should remain nvim
-    nvim_binary = "nvim",
-  },
   keys = {
     -- stylua: ignore
     {
@@ -140,8 +121,33 @@ make assumptions about how you work.
       "<CMD>DevContainerToggle<CR>",
       desc = "Toggle the current DevContainer Terminal"
     },
-  }
-},
+  },
+  init = function()
+    local opts = {
+      -- whather to verify that the final devcontainer should be run
+      interactive = false,
+      -- search for the devcontainer directory closest to the root in the
+      -- directory tree
+      toplevel = true,
+      -- Remove existing container each time DevcontainerUp is executed
+      -- If set to True [default_value] it can take extra time as you force to
+      -- start from scratch
+      remove_existing_container = true,
+      -- By default, if no extra config is added, following nvim_dotfiles are
+      -- installed: "https://github.com/erichlf/dotfiles"
+      -- This is an example for configuring other dotfiles inside the docker container
+      dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
+      dotfiles_branch = "devcontainer-cli", -- branch to clone from dotfiles_repository`
+      dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
+      dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
+      shell = "bash", -- shell to use when executing commands
+      -- The particular binary to use for connecting to in the devcontainer
+      -- Most likely this should remain nvim
+      nvim_binary = "nvim",
+    }
+    require('devcontainer-cli').setup(opts)
+  end,
+}
 ```
 
 The default_config can be found [here](./lua/devcontainer_cli/config/init.lua).
@@ -204,6 +210,5 @@ make test
        (`:DevcontainerUp<cr>`) is closed when the process finishes successfully.
 4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/devcontainer-cli.nvim/issues/1)
 5. [x] Add unit tests using plenary.busted lua module.
-6. [ ] The logs printed in the floating window when preparing the Devcontainer
-       are saved and easy to access.
+6. [x] Create a logger.
 7. [x] Convert bash scripts in lua code.
