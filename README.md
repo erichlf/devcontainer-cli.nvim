@@ -86,28 +86,6 @@ make assumptions about how you work.
 {
   "erichlf/devcontainer-cli.nvim",
   dependencies = { 'akinsho/toggleterm.nvim' },
-  opts = {
-    -- whather to verify that the final devcontainer should be run
-    interactive = false,
-    -- search for the devcontainer directory closest to the root in the 
-    -- directory tree
-    toplevel = true,
-    -- Remove existing container each time DevcontainerUp is executed
-    -- If set to True [default_value] it can take extra time as you force to
-    -- start from scratch
-    remove_existing_container = true,
-    -- By default, if no extra config is added, following nvim_dotfiles are
-    -- installed: "https://github.com/erichlf/dotfiles"
-    -- This is an example for configuring other dotfiles inside the docker container
-    dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
-    dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
-    dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
-    dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
-    shell = "bash", -- shell to use when executing commands
-    -- The particular binary to use for connecting to in the devcontainer
-    -- Most likely this should remain nvim
-    nvim_binary = "nvim",
-  },
   keys = {
     -- stylua: ignore
     {
@@ -140,8 +118,33 @@ make assumptions about how you work.
       "<CMD>DevContainerToggle<CR>",
       desc = "Toggle the current DevContainer Terminal"
     },
-  }
-},
+  },
+  config = function()
+    local opts = {
+      -- whather to verify that the final devcontainer should be run
+      interactive = false,
+      -- search for the devcontainer directory closest to the root in the 
+      -- directory tree
+      toplevel = true,
+      -- Remove existing container each time DevcontainerUp is executed
+      -- If set to True [default_value] it can take extra time as you force to
+      -- start from scratch
+      remove_existing_container = true,
+      -- By default, if no extra config is added, following nvim_dotfiles are
+      -- installed: "https://github.com/erichlf/dotfiles"
+      -- This is an example for configuring other dotfiles inside the docker container
+      dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
+      dotfiles_branch = "main", -- branch to clone from dotfiles_repository`
+      dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
+      dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
+      shell = "bash", -- shell to use when executing commands
+      -- The particular binary to use for connecting to in the devcontainer
+      -- Most likely this should remain nvim
+      nvim_binary = "nvim",
+    }
+    require('devcontainer-cli').setup(opts)
+  end,
+}
 ```
 
 The default_config can be found [here](./lua/devcontainer_cli/config/init.lua).
