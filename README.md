@@ -119,7 +119,7 @@ make assumptions about how you work.
       desc = "Toggle the current DevContainer Terminal"
     },
   },
-  config = function()
+  init = function()
     local opts = {
       -- whather to verify that the final devcontainer should be run
       interactive = false,
@@ -207,6 +207,5 @@ make test
        (`:DevcontainerUp<cr>`) is closed when the process finishes successfully.
 4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/devcontainer-cli.nvim/issues/1)
 5. [x] Add unit tests using plenary.busted lua module.
-6. [x] The logs printed in the floating window when preparing the Devcontainer
-       are saved and easy to access.
+6. [x] Create a logger.
 7. [x] Convert bash scripts in lua code.
