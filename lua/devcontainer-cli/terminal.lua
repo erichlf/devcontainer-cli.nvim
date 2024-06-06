@@ -32,7 +32,7 @@ local _on_fail     = function(exit_code)
 end
 
 local _on_success  = function()
-  log.INFO("Devcontainer process succeeded!")
+  log.info("Devcontainer process succeeded!")
 end
 
 -- on_exit callback function to delete the open buffer when devcontainer exits
