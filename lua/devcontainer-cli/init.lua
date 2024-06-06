@@ -69,6 +69,15 @@ function M.setup(opts)
     }
   )
 
+  vim.api.nvim_create_user_command(
+    "DevcontainerDown",
+    devcontainer_cli.down,
+    {
+      nargs = 0,
+      desc = "Kill the current devcontainer.",
+    }
+  )
+
   log.debug("Finished setting up devcontainer-cli")
 end
 

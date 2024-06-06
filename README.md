@@ -97,9 +97,14 @@ make assumptions about how you work.
       desc = "Bring up the DevContainer",
     },
     {
-      "<leader>Dc",
+      "<leader>Dd",
       ":DevcontainerConnect<CR>",
       desc = "Connect to DevContainer",
+    },
+    {
+      "<leader>Dc",
+      ":DevcontainerDown<CR>",
+      desc = "Kill the current DevContainer",
     },
     {
       "<leader>De",

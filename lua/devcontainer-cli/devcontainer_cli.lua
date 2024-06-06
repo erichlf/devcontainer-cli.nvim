@@ -72,4 +72,9 @@ function M.connect()
   vim.cmd("wqa")
 end
 
+-- kill the current running docker container associated with the current project
+function M.down()
+  utils.down()
+end
+
 return M

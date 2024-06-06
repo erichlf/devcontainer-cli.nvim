@@ -21,6 +21,7 @@
 local config       = require("devcontainer-cli.config")
 local folder_utils = require("devcontainer-cli.folder_utils")
 local terminal     = require("devcontainer-cli.terminal")
+local log          = require("devcontainer-cli.log")
 
 local M            = {}
 
@@ -96,7 +97,7 @@ end
 local function _devcontainer_command(action)
   local devcontainer_root = folder_utils.get_root(config.toplevel)
   if devcontainer_root == nil then
-    vim.notify("Unable to find devcontainer directory...", vim.log.levels.ERROR)
+    log.error("unable to find devcontainer directory...")
     return nil
   end
 
@@ -159,9 +160,7 @@ function M.bringup()
       },
       function(input)
         if (input == "q" or input == "Q") then
-          vim.notify(
-            "\nUser cancelled bringing up devcontainer"
-          )
+          log.info("\nUser cancelled bringing up devcontainer")
         else
           terminal.spawn(command)
         end
@@ -184,7 +183,7 @@ function M._exec_cmd(cmd, direction, size)
   end
 
   command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
-  vim.notify(command)
+  log.info(command)
   terminal.spawn(command, direction, size)
 end
 
@@ -195,7 +194,7 @@ end
 ---@param size (number|nil) size of the window to create
 function M.exec(cmd, direction, size)
   if terminal.is_open() then
-    vim.notify("There is already a devcontainer process running.", vim.log.levels.WARN)
+    log.warn("there is already a devcontainer process running.")
     return
   end
 
@@ -206,7 +205,7 @@ function M.exec(cmd, direction, size)
         if input ~= nil then
           M._exec_cmd(input, direction, size)
         else
-          vim.notify("No command received, ignoring.", vim.log.levels.WARN)
+          log.warn("no command received, ignoring.")
         end
       end
     )
@@ -242,7 +241,7 @@ function M.create_connect_cmd()
             elseif vim.fn.executable("Terminal.app") == 1 then
               connect_command = { "Terminal.app" }
             else
-              vim.notify("No supported terminal emulator found.", vim.log.levels.ERROR)
+              log.error("no supported terminal emulator found.")
             end
 
             table.insert(connect_command, dev_command)
@@ -257,6 +256,30 @@ function M.create_connect_cmd()
   )
 
   return true
+end
+
+-- issues command to down devcontainer
+function M.down()
+  local workspace = folder_utils.get_root(config.toplevel)
+  if workspace == nil then
+    log.error("Couldn't determine project root")
+    return
+  end
+
+  local tag = workspace .. "/.devcontainer/devcontainer.json"
+  local command = "docker ps -q -a --filter label=devcontainer.config_file=" .. tag
+  log.debug("Attempting to get pid of devcontainer using command: " .. command)
+  local result = vim.fn.systemlist(command)
+
+  if #result == 0 then
+    log.warn("Couldn't find devcontainer to kill")
+    return
+  end
+
+  local pid = result[1]
+  command = "docker kill " .. pid
+  log.info("Killing docker container with pid: " .. pid)
+  terminal.spawn(command)
 end
 
 return M
