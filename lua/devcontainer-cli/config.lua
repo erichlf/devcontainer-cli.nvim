@@ -17,8 +17,6 @@
 -- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 -- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 -- SOFTWARE.
-local log = require("devcontainer-cli.log")
-
 local ConfigModule = {}
 local file_path = debug.getinfo(1).source:sub(2)
 local default_config = {
@@ -59,10 +57,8 @@ local default_config = {
 local options
 
 function ConfigModule.setup(opts)
-  log.debug("Configuring devcontainer-cli")
   opts = vim.tbl_deep_extend("force", default_config, opts or {})
   options = opts
-  log.debug("Configuring devcontainer-cli complete")
 end
 
 return setmetatable(ConfigModule,
