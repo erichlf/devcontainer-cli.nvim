@@ -1,5 +1,8 @@
 # Devcontainer CLI (NVIM Plugin)
 
+![GitHub Workflow Status](http://img.shields.io/github/actions/workflow/status/erichlf/devcontainer-cli.nvim/default.yml?branch=main&style=for-the-badge)
+![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
+
 Develop your next Repo in a Devcontainer using *nvim* thanks to the
 [Devconatiner CLI](https://github.com/devcontainers/cli) and this plugin
 ![devcontainer-cli in action](doc/gifs/devcontainer-cli-description.gif)
