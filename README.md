@@ -144,11 +144,18 @@ make assumptions about how you work.
       dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
       dotfiles_branch = "devcontainer-cli", -- branch to clone from dotfiles_repository`
       dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
-      dotfiles_intallCommand = "install.sh", -- script to run after dotfiles are cloned
+      -- script to run after dotfiles are cloned
+      dotfiles_intallCommand = "install.sh", 
       shell = "bash", -- shell to use when executing commands
       -- The particular binary to use for connecting to in the devcontainer
       -- Most likely this should remain nvim
       nvim_binary = "nvim",
+      -- Set the logging level for console (notifications) and file logging. 
+      -- The available levels are trace, debug, info, warn, error, or fatal.
+      -- Set the log level for file logging
+      log_level = "debug",
+      -- Set the log level for console logging
+      console_level = "info",
     }
     require('devcontainer-cli').setup(opts)
   end,

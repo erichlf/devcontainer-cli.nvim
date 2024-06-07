@@ -6,6 +6,8 @@
 -- This library is free software; you can redistribute it and/or modify it
 -- under the terms of the MIT license. See LICENSE for details.
 
+global_config = require("devcontainer-cli.config")
+
 -- User configuration section
 local default_config = {
   -- Name of the plugin. Prepended to log messages
@@ -21,9 +23,9 @@ local default_config = {
   use_file = true,
 
   -- Any messages above this level will be logged to log file.
-  log_level = "debug",
+  log_level = global_config.log_level,
   -- Any messages above this level will be logged to console.
-  console_level = "info",
+  console_level = global_config.console_level,
 
   -- Level configuration
   modes = {
