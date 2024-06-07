@@ -11,8 +11,6 @@ Development is in progress, but the plugin can already be used.
 To find out more:
 https://github.com/erichlf/devcontainer-cli.nvim
 
-  :h DevcontainerUp 
-
 DevcontainerUp                                                  *DevcontainerUp*
     Spawns a devcontainer, installing dotfiles in the docker container.
 
@@ -28,4 +26,7 @@ DevcontainerConnect                                        *DevcontainerConnect*
     Closes the nvim sessions (all sessions fromt the terminal) and opens a new
     terminal which is connected in the docker container, ready to execute the
     nvim inside the docker container and start developing your application.
+
+DevcontainerDown                                              *DevcontainerDown*
+    Stops and removes the devcontainer associated with the current project.
 ================================================================================
