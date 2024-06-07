@@ -6,7 +6,7 @@
 -- This library is free software; you can redistribute it and/or modify it
 -- under the terms of the MIT license. See LICENSE for details.
 
-global_config = require("devcontainer-cli.config")
+local global_config = require("devcontainer-cli.config")
 
 -- User configuration section
 local default_config = {
