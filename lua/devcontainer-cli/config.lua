@@ -49,7 +49,11 @@ local default_config = {
   nvim_binary = "nvim",
   -- The shell to use for executing command. Available sh, bash, zsh or any
   -- other that uses '-c' to signify a command is to follow
-  shell = 'bash',
+  shell = "bash",
+  -- Set the log level for file logging
+  log_level = "info",
+  -- Set the log level for console logging
+  console_level = "info",
 }
 
 local options
