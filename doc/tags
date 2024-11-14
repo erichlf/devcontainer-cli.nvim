@@ -1,0 +1,7 @@
+DevcontainerConnect	devcontainer-cli.nvim.txt	/*DevcontainerConnect*
+DevcontainerDown	devcontainer-cli.nvim.txt	/*DevcontainerDown*
+DevcontainerExec	devcontainer-cli.nvim.txt	/*DevcontainerExec*
+DevcontainerToggle	devcontainer-cli.nvim.txt	/*DevcontainerToggle*
+DevcontainerUp	devcontainer-cli.nvim.txt	/*DevcontainerUp*
+devcontainer-cli.nvim	devcontainer-cli.nvim.txt	/*devcontainer-cli.nvim*
+devcontainer-cli.nvim.txt	devcontainer-cli.nvim.txt	/*devcontainer-cli.nvim.txt*
