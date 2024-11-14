@@ -232,6 +232,8 @@ function M.create_connect_cmd()
             local connect_command = {}
             if vim.env.TMUX ~= "" then
               connect_command = { "tmux split-window -h -t \"$TMUX_PANE\"" }
+            elseif vim.fn.executable("wezterm") == 1 then
+              connect_command = { "wezterm cli split-pane --right --cwd ." }
             elseif vim.fn.executable("allacrity") == 1 then
               connect_command = { "alacritty --working-directory . --title \"Devcontainer\" -e" }
             elseif vim.fn.executable("gnome-terminal") == 1 then
