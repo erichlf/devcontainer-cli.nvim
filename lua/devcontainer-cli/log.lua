@@ -11,7 +11,7 @@ local global_config = require("devcontainer-cli.config")
 -- User configuration section
 local default_config = {
   -- Name of the plugin. Prepended to log messages
-  plugin = 'decontainer-cli',
+  plugin = "devcontainer-cli",
 
   -- Should print the output to neovim while running
   use_console = true,
@@ -29,12 +29,12 @@ local default_config = {
 
   -- Level configuration
   modes = {
-    { name = "trace", hl = "Comment", },
-    { name = "debug", hl = "Comment", },
-    { name = "info",  hl = "None", },
-    { name = "warn",  hl = "WarningMsg", },
-    { name = "error", hl = "ErrorMsg", },
-    { name = "fatal", hl = "ErrorMsg", },
+    { name = "trace", hl = "Comment" },
+    { name = "debug", hl = "Comment" },
+    { name = "info", hl = "None" },
+    { name = "warn", hl = "WarningMsg" },
+    { name = "error", hl = "ErrorMsg" },
+    { name = "fatal", hl = "ErrorMsg" },
   },
 
   -- Can limit the number of decimals displayed for floats
@@ -49,7 +49,7 @@ local unpack = unpack or table.unpack
 log.new = function(config, standalone)
   config = vim.tbl_deep_extend("force", default_config, config)
 
-  local outfile = string.format('%s/%s.log', vim.fn.stdpath("cache"), config.plugin)
+  local outfile = string.format("%s/%s.log", vim.fn.stdpath("cache"), config.plugin)
 
   local obj
   if standalone then
@@ -66,12 +66,12 @@ log.new = function(config, standalone)
   local round = function(x, increment)
     increment = increment or 1
     x = x / increment
-    return (x > 0 and math.floor(x + .5) or math.ceil(x - .5)) * increment
+    return (x > 0 and math.floor(x + 0.5) or math.ceil(x - 0.5)) * increment
   end
 
   local make_string = function(...)
     local t = {}
-    for i = 1, select('#', ...) do
+    for i = 1, select("#", ...) do
       local x = select(i, ...)
 
       if type(x) == "number" and config.float_precision then
@@ -86,7 +86,6 @@ log.new = function(config, standalone)
     end
     return table.concat(t, " ")
   end
-
 
   local log_at_level = function(level, level_config, message_maker, ...)
     local nameupper = level_config.name:upper()
@@ -120,13 +119,15 @@ log.new = function(config, standalone)
     end
 
     -- Output to log file
-    if config.use_file and level >= levels[config.log_level] then
-      local fp = io.open(outfile, "a")
-      local str = string.format("[%-6s%s] %s: %s\n",
-      nameupper, os.date(), lineinfo, msg)
-      if fp ~= nil then
+    if config.use_file and level < levels[config.log_level] then
+      local ok, err = pcall(function()
+        local fp = assert(io.open(outfile, "a"))
+        local str = string.format("[%-6s%s] %s: %s\n", nameupper, os.date(), lineinfo, msg)
         fp:write(str)
         fp:close()
+      end)
+      if not ok then
+        vim.notify(string.format("Failed to write to log file: %s", err), vim.log.levels.ERROR)
       end
     end
   end
@@ -136,9 +137,9 @@ log.new = function(config, standalone)
       return log_at_level(i, x, make_string, ...)
     end
 
-    obj[("fmt_%s" ):format(x.name)] = function()
+    obj[("fmt_%s"):format(x.name)] = function()
       return log_at_level(i, x, function(...)
-        local passed = {...}
+        local passed = { ... }
         local fmt = table.remove(passed, 1)
         local inspected = {}
         for _, v in ipairs(passed) do
