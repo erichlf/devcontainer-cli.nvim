@@ -32,7 +32,7 @@ jobs:
           imageName: ${{ env.IMAGE_NAME }}-${{ matrix.neovim-version }}
           cacheFrom: ${{ env.IMAGE_NAME }}-${{ matrix.neovim-version }}
           push: never
-          env: NEOVIM_VERSION=${{ matrix.neovim-version }}
+          options: --build-args NEOVIM_VERSION=${{ matrix.neovim-version }}
       - name: Run tests inside the docker image
         uses: devcontainers/ci@v0.3
         with:
