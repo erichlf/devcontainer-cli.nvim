@@ -18,7 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+ARG NEOVIM_VERSION="stable"
 FROM ubuntu:22.04 as builder
+
+ARG NEOVIM_VERSION
 
 # Install dependencies needed for building devcontainers/cli and developing in neovim
 RUN apt-get update && \
@@ -37,13 +40,25 @@ RUN apt-get update && \
   && apt-get autoremove -y \
   && rm -rf /var/lib/apt/lists/*
 
+WORKDIR /tmp
+
+# Install NEOVIM
+RUN \
+  if [ "$NEOVIM_VERSION" = "stable" ]; then \
+  curl -fLO https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSION}/nvim-linux-x86_64.tar.gz; \
+  else \
+  curl -fLO https://github.com/neovim/neovim/releases/download/${NEOVIM_VERSION}/nvim-linux64.tar.gz; \
+  fi \
+  && rm -rf /opt/nvim \
+  && tar -C /opt -xzf nvim-*.tar.gz \
+  && ln -s /opt/nvim-*/bin/nvim /usr/local/bin/nvim \
+  && chmod u+x /usr/local/bin/nvim
+
 WORKDIR /app
 
-# Installing the devcontainers CLI
-RUN npm install -g @devcontainers/cli@0.49.0
-
-# Installing Lua Dependencies for testing LUA projects
-RUN luarocks install busted
+# Installing the devcontainers CLI and Lua Dependencies for testing LUA projects
+RUN npm install -g @devcontainers/cli@0.49.0 \
+  && luarocks install busted
 
 ENV USER_NAME=my-app
 ARG GROUP_NAME=$USER_NAME

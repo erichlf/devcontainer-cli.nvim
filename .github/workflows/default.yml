@@ -5,18 +5,37 @@ env:
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        neovim-version:
+          [
+            "v0.9.0",
+            "v0.9.1",
+            "v0.9.2",
+            "v0.9.4",
+            "v0.9.5",
+            "v0.10.0",
+            "v0.10.1",
+            "v0.10.2",
+            "v0.10.3",
+            "stable",
+          ]
+      fail-fast: false
+
+    name: NEOVIM ${{ matrix.neovim-version }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
-      - name: Pre-build devcontainer image
+        uses: actions/checkout@v4
+      - name: Pre-build devcontainer image for NEOVIM ${{ matrix.neovim-version }}
         uses: devcontainers/ci@v0.3
         with:
-          imageName: ${{ env.IMAGE_NAME }}
-          cacheFrom: ${{ env.IMAGE_NAME }}
+          imageName: ${{ env.IMAGE_NAME }}-${{ matrix.neovim-version }}
+          cacheFrom: ${{ env.IMAGE_NAME }}-${{ matrix.neovim-version }}
           push: never
+          env: NEOVIM_VERSION=${{ matrix.neovim-version }}
       - name: Run tests inside the docker image
         uses: devcontainers/ci@v0.3
         with:
-          cacheFrom: ${{ env.IMAGE_NAME }}
+          cacheFrom: ${{ env.IMAGE_NAME }}-${{ matrix.neovim-version }}
           push: never
           runCmd: make test

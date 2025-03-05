@@ -80,6 +80,7 @@ make assumptions about how you work.
 
 ## Dependencies
 
+- NeoVim 0.9.0+
 - [docker](https://docs.docker.com/get-docker/)
 - [devcontainer-cli](https://github.com/devcontainers/cli#npm-install)
 - [toggleterm](https://github.com/akinsho/toggleterm.nvim)
@@ -148,12 +149,12 @@ make assumptions about how you work.
       dotfiles_branch = "devcontainer-cli", -- branch to clone from dotfiles_repository`
       dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
       -- script to run after dotfiles are cloned
-      dotfiles_intallCommand = "install.sh", 
+      dotfiles_intallCommand = "install.sh",
       shell = "bash", -- shell to use when executing commands
       -- The particular binary to use for connecting to in the devcontainer
       -- Most likely this should remain nvim
       nvim_binary = "nvim",
-      -- Set the logging level for console (notifications) and file logging. 
+      -- Set the logging level for console (notifications) and file logging.
       -- The available levels are trace, debug, info, warn, error, or fatal.
       -- Set the log level for file logging
       log_level = "debug",
