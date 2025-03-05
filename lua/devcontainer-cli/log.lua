@@ -96,7 +96,7 @@ log.new = function(config, standalone)
     local lineinfo = info.short_src .. ":" .. info.currentline
 
     -- Output to console
-    if config.use_console and level < levels[config.console_level] then
+    if config.use_console and level >= levels[config.console_level] then
       local console_string = string.format(
       "[%-6s%s] %s: %s",
       nameupper,
@@ -120,7 +120,7 @@ log.new = function(config, standalone)
     end
 
     -- Output to log file
-    if config.use_file and level < levels[config.log_level] then
+    if config.use_file and level >= levels[config.log_level] then
       local fp = io.open(outfile, "a")
       local str = string.format("[%-6s%s] %s: %s\n",
       nameupper, os.date(), lineinfo, msg)

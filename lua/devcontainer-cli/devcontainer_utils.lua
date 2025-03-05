@@ -230,8 +230,11 @@ function M.create_connect_cmd()
       callback =
           function()
             local connect_command = {}
-            if vim.env.TMUX ~= "" then
+            if vim.env.TMUX ~= nil then
               connect_command = { "tmux split-window -h -t \"$TMUX_PANE\"" }
+            elseif vim.fn.executable("wezterm") == 1 then
+              connect_command = { "wezterm cli split-pane --right --cwd . -- bash -c" }
+              dev_command = "\"" .. dev_command .. "\""
             elseif vim.fn.executable("allacrity") == 1 then
               connect_command = { "alacritty --working-directory . --title \"Devcontainer\" -e" }
             elseif vim.fn.executable("gnome-terminal") == 1 then
@@ -242,6 +245,7 @@ function M.create_connect_cmd()
               connect_command = { "Terminal.app" }
             else
               log.error("no supported terminal emulator found.")
+              return false
             end
 
             table.insert(connect_command, dev_command)
