@@ -67,8 +67,7 @@ Using **lazy.nvim**:
       dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
       dotfiles_branch = "devcontainer-cli",
       dotfiles_targetPath = "~/dotfiles",
-      -- NOTE: the current option name is spelled `dotfiles_intallCommand` in the plugin
-      dotfiles_intallCommand = "install.sh",
+      dotfiles_installCommand = "install.sh",
       shell = "bash",
       nvim_binary = "nvim",
       log_level = "debug",
@@ -129,8 +128,7 @@ Call `require("devcontainer-cli").setup({ ... })` with any of the following opti
   dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
   dotfiles_branch = "devcontainer-cli",
   dotfiles_targetPath = "~/dotfiles",
-  -- NOTE: option currently spelled `dotfiles_intallCommand` in code
-  dotfiles_intallCommand = "install.sh",
+  dotfiles_installCommand = "install.sh",
 
   -- Shell used when executing commands
   shell = "bash",
@@ -224,7 +222,7 @@ No. You can either keep Neovim on the host and use `:DevcontainerExec`, or conne
 This plugin focuses on using the official Dev Container CLI and avoids imposing opinions. Similar projects include `esensar/nvim-dev-container` and `arnaupv/nvim-devcontainer-cli`; if you prefer a different model (e.g., host Neovim + remote LSP servers), compare approaches and pick what suits you.
 
 **Where should I keep my dotfiles?**
-Point `dotfiles_repository` to any repo. The plugin will clone that repo into the container and run your setup script (`dotfiles_intallCommand`).
+Point `dotfiles_repository` to any repo. The plugin will clone that repo into the container and run your setup script (`dotfiles_installCommand`).
 
 ---
 
