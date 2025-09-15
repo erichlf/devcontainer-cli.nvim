@@ -1,230 +1,241 @@
-# Devcontainer CLI (NVIM Plugin)
+# Devcontainer CLI for Neovim
 
-![GitHub Workflow Status](http://img.shields.io/github/actions/workflow/status/erichlf/devcontainer-cli.nvim/default.yml?branch=main&style=for-the-badge)
-![Lua](https://img.shields.io/badge/Made%20with%20Lua-blueviolet.svg?style=for-the-badge&logo=lua)
+Run your project **inside a Dev Container** (via the [`devcontainer` CLI]) without leaving Neovim. This plugin brings convenient commands to **build**, **start**, **connect to**, and **exec** into your dev container, while keeping your usual Neovim setup.
 
-Develop your next Repo in a Devcontainer using *nvim* thanks to the
-[Devconatiner CLI](https://github.com/devcontainers/cli) and this plugin
+> ✨ Goals: Stay out of your way, make no hard assumptions about your workflow, and give you sharp primitives to stitch into your own dotfiles, keymaps, and tasks.
+
 ![devcontainer-cli in action](doc/gifs/devcontainer-cli-description.gif)
-
-As you can see in the GIF above, guake with tmux is being used. Any of the ones
-recommended [here](https://www.lazyvim.org/) would work. For dotfiles setup I created
-a version of my dotfiles that doesn't have any private submodules. These dotfiles
-are probably more than what anyone would want, but if feel free to use them. The
-one gotcha with them is that it requires the environment variable DEV_WORKSPACE
-to be set. I would recommend looking at the `devcontainer-cli` branch of
-[my dotfiles](https://github.com/erichlf/dotfiles). The `install.sh` script ends
-up calling `script/devcontainer-cli` which is quite simple, but should get you
-some pretty good ideas of how things can be setup.
 
 ---
 
-## Intro
+## Table of Contents
 
-First, what problem is this plugin trying to solve?
+- [Why](#why)
+- [Requirements](#requirements)
+- [Install](#install)
+- [Quick start](#quick-start)
+- [Commands](#commands)
+- [Configuration](#configuration)
+- [Keymap examples](#keymap-examples)
+- [Dev Container template](#dev-container-template)
+- [Troubleshooting](#troubleshooting)
+- [FAQ](#faq)
+- [Credits](#credits)
+- [License](#license)
 
-**Situation:**
+---
 
-Your favorite editor is **nvim** and you are currently developing a
-containerized application (using Docker).
+## Why
 
-**Problem:**
+**Situation.** You work on a containerized app and prefer Neovim.
 
-Your team is using a devcontainer (or a docker container) and you want to still
-use **nvim** with [LSP](https://microsoft.github.io/language-server-protocol/)
-and [DAP](https://microsoft.github.io/debug-adapter-protocol/) (among other
-plugins), but you don't want to have to run all the cumbersome commands.
+**Problem.** Your team uses Dev Containers and you want LSP/DAP and your usual tools, but running the right `docker` / `devcontainer` incantations and wiring dotfiles each time is… a lot.
 
-**Solution:**
+**Solution.** Use this plugin to delegate the heavy lifting to the **Dev Container CLI** and expose ergonomic Neovim commands to:
 
-There are multiple IDEs out there who give you the possibility to execute
-themself inside the Docker container you are developing, fixing the problems
-above, but there is nothing which works out-of-the-box for **nvim**. Recently,
-Microsoft opened the command line tool,
-([Devconatiner CLI](https://github.com/devcontainers/cli)), which allows developers
-to run devcontainers without VScode.
+- spin up / tear down your container,
+- connect a terminal to it, and
+- run ad‑hoc commands (build, test, etc.).
 
-The current **nvim** plugin aims to take advantage of `devcontainer-cli` for
-creating your own local development environment on top of a containerized
-applications. This plugin allows you use LSP capabilities for external modules
-(installed inside the Docker container), and also debug your application
-([DAP](https://microsoft.github.io/debug-adapter-protocol/)).
+---
 
-But, what is happening under the hood?
+## Requirements
 
-1. First, `devcontainer-cli` is used for setting up your devcontainer, building
-   the image based on the instructions defined in your
-   [devcontainer.json](.devcontainer/devcontainer.json) and initializing a
-   container based on such image.
-2. Once the container is running, your dotfiles are installed in the docker
-   container together with a set of dependencies. To install any dependencies
-   you need either the dotfiles setup script will need to do that or you can
-   use devcontainer features to install them. A very nice devcontainer feature
-   that can do this is
-   [apt package](https://github.com/rocker-org/devcontainer-features/tree/main/src/apt-packages).
-3. The last step is connecting inside the container via `devcontainer exec`
-   ([here](https://github.com/erichlf/devcontainer-cli.nvim/blob/main/bin/connect_to_devcontainer.sh)).
+- **Neovim** ≥ 0.9
+- **Docker** (or compatible runtime) installed and running
+- **Dev Container CLI** (`devcontainer`) available in `$PATH`
+- **toggleterm.nvim** (for the integrated terminal UI)
 
-The main thing this plugin does is bringup your devcontainer and execute
-commands via a convenient interface. It attempts to stay out of your way and
-allows you to do things as you wish, but gives you the tools to do that easily.
+> Tip: If you don’t want to use `toggleterm.nvim`, you can still call the commands; the terminal UI just won’t be as nice.
 
-**Inspiration:**
+---
 
-This plugin has been inspired by the work previously done by
-[arnaupv](https://github.com/arnaupv/devcontainer-cli.nvim),
-[esensar](https://github.com/esensar/nvim-dev-container) and by
-[jamestthompson3](https://github.com/jamestthompson3/nvim-remote-containers).
-The main difference between this version and arnaupv is that it tries to not
-make assumptions about how you work.
+## Install
 
-## Dependencies
-
-- NeoVim 0.9.0+
-- [docker](https://docs.docker.com/get-docker/)
-- [devcontainer-cli](https://github.com/devcontainers/cli#npm-install)
-- [toggleterm](https://github.com/akinsho/toggleterm.nvim)
-
-## 🔧 Installation
-
-- [lazy.nvim](https://github.com/folke/lazy.nvim)
+Using **lazy.nvim**:
 
 ```lua
 {
   "erichlf/devcontainer-cli.nvim",
-  dependencies = { 'akinsho/toggleterm.nvim' },
-  keys = {
-    -- stylua: ignore
-    {
-      "<leader>Du",
-      ":DevcontainerUp<CR>",
-      desc = "Bring up the DevContainer",
-    },
-    {
-      "<leader>Dc",
-      ":DevcontainerConnect<CR>",
-      desc = "Connect to DevContainer",
-    },
-    {
-      "<leader>Dd",
-      ":DevcontainerDown<CR>",
-      desc = "Kill the current DevContainer",
-    },
-    {
-      "<leader>De",
-      ":DevcontainerExec direction='vertical' size='40'<CR>",
-      desc = "Execute a command in DevContainer",
-    },
-    {
-      "<leader>Db",
-      ":DevcontainerExec cd build && make<CR>",
-      desc = "Execute build command in DevContainer",
-    },
-    {
-      "<leader>Dt",
-      ":DevcontainerExec cmd='cd build && make test' direction='horizontal'<CR>",
-      desc = "Execute test command in DevContainer",
-    },
-    {
-      "<leader>DT",
-      "<CMD>DevContainerToggle<CR>",
-      desc = "Toggle the current DevContainer Terminal"
-    },
-  },
+  dependencies = { "akinsho/toggleterm.nvim" },
   init = function()
-    local opts = {
-      -- whather to verify that the final devcontainer should be run
+    require("devcontainer-cli").setup({
+      -- only the most useful options shown; see full config below
       interactive = false,
-      -- search for the devcontainer directory closest to the root in the
-      -- directory tree
       toplevel = true,
-      -- Remove existing container each time DevcontainerUp is executed
-      -- If set to True [default_value] it can take extra time as you force to
-      -- start from scratch
       remove_existing_container = true,
-      -- By default, if no extra config is added, following nvim_dotfiles are
-      -- installed: "https://github.com/erichlf/dotfiles"
-      -- This is an example for configuring other dotfiles inside the docker container
       dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
-      dotfiles_branch = "devcontainer-cli", -- branch to clone from dotfiles_repository`
-      dotfiles_targetPath = "~/dotfiles", -- location to install dotfiles
-      -- script to run after dotfiles are cloned
+      dotfiles_branch = "devcontainer-cli",
+      dotfiles_targetPath = "~/dotfiles",
+      -- NOTE: the current option name is spelled `dotfiles_intallCommand` in the plugin
       dotfiles_intallCommand = "install.sh",
-      shell = "bash", -- shell to use when executing commands
-      -- The particular binary to use for connecting to in the devcontainer
-      -- Most likely this should remain nvim
+      shell = "bash",
       nvim_binary = "nvim",
-      -- Set the logging level for console (notifications) and file logging.
-      -- The available levels are trace, debug, info, warn, error, or fatal.
-      -- Set the log level for file logging
       log_level = "debug",
-      -- Set the log level for console logging
       console_level = "info",
-    }
-    require('devcontainer-cli').setup(opts)
+    })
   end,
 }
 ```
 
-The default_config can be found [here](./lua/devcontainer_cli/config/init.lua).
+> Also make sure the **Dev Container CLI** is installed (for example via `npm i -g @devcontainers/cli`).
 
-## How to use?
+---
 
-There are 3 main commands: `:DevcontainerUp`, `:DevcontainerExec`, and `:DevcontainerConnect`.
+## Quick start
 
-1. First, you should be in the main direcotry or subdirectory of your project
-   container you `.devcontainer` directory. This file is used by the
-   [Devcontainer CLI](https://github.com/devcontainers/cli). As a first
-   approach you can copy-paste the
-   [.devcontainer](.devcontainer/devcontainer.json) folder of the current
-   project and adapt it for your repo. You can also find more information about
-   the `devcontainer.json` file
-   [here](https://code.visualstudio.com/docs/remote/devcontainerjson-reference).
-2. Then open a **nvim** session and execute the first command:
-   `DevcontainerUp`, which will create the image based on your
-   `.devcontainer\devcontainer.json`. Once created it will initialize a
-   container with the previously created image, and then clone your dotfiles,
-   and finally run the specified setup script. The new devcontainer running can
-   be easily checked with the following command: `docker ps -a`.
-3. If the process above finishes successfully, you can choose to close the
-   current **nvim** session and open a new session within the devcontainer via
-   the command: `:DevcontainerConnect`. Alternatively, you could choose to
-   continue working in your current session and run commands in the
-   devcontainer via `DevcontainerExec`.
+1. **Ensure you have a Dev Container config** in your project: `.devcontainer/devcontainer.json` (or a top‑level `devcontainer.json`). A good way to start is to copy the example in [Dev Container template](#dev-container-template) and adapt it.
+2. **Open Neovim** anywhere inside that project.
+3. Run `:DevcontainerUp` to build + start the container, clone and apply your dotfiles, and run your setup script inside the container.
+4. Then either:
+   - `:DevcontainerConnect` to open a terminal **inside** the container and keep coding, or
+   - `:DevcontainerExec <args…>` to run one‑off commands in the container from your current session (build, test, etc.).
 
-During execution using `DevcontainerUp` or `DevcontainerExec` it is possible
-to toggle the terminal via `t` while in normal mode and then to bring it back
-you can run `:DevContainerToggle`. Additionally you could bring it back through
-`:TermSelect`.
+**Pro tip:** While a Dev Container task is running, press `t` in normal mode to toggle the terminal window. Use `:DevContainerToggle` to bring it back later.
 
-During the execution of a Devcontainer process you can also type `q` or `<esc>`
-to kill the process and exit the terminal window.
+---
 
-## Tests
+## Commands
 
-Tests are executed automatically on each PR using Github Actions.
+- `:DevcontainerUp`
+  - Build image (from your `devcontainer.json`) and start the container. Also performs optional dotfiles setup.
+- `:DevcontainerConnect`
+  - Open an interactive terminal attached to the container (handy for running `nvim` inside the container if you prefer that workflow).
+- `:DevcontainerExec [cmd=<string>] [direction=<horizontal|vertical|float>] [size=<number>]`
+  - Execute a command in the running container. If `cmd` is omitted, you’ll be prompted. Common patterns: build, test, codegen.
+- `:DevcontainerDown`
+  - Stop and remove the container (see `remove_existing_container` if you want to always start clean).
+- `:DevContainerToggle`
+  - Toggle the last devcontainer terminal window.
 
-In case you want to run Github Actions locally, it is recommended to use
-[act](https://github.com/nektos/act#installation). And then execute:
+---
 
-```bash
-act -W .github/workflows/default.yml
+## Configuration
+
+Call `require("devcontainer-cli").setup({ ... })` with any of the following options (defaults shown):
+
+```lua
+{
+  -- Ask before running actions that change state (good for newcomers)
+  interactive = false,
+
+  -- Search upwards and use the nearest `.devcontainer/` folder
+  toplevel = true,
+
+  -- Start from scratch each `DevcontainerUp` (slower but clean)
+  remove_existing_container = true,
+
+  -- Dotfiles bootstrap executed *inside* the container
+  dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
+  dotfiles_branch = "devcontainer-cli",
+  dotfiles_targetPath = "~/dotfiles",
+  -- NOTE: option currently spelled `dotfiles_intallCommand` in code
+  dotfiles_intallCommand = "install.sh",
+
+  -- Shell used when executing commands
+  shell = "bash",
+
+  -- Binary invoked when connecting inside the container
+  nvim_binary = "nvim",
+
+  -- Logging
+  log_level = "debug",   -- file logs
+  console_level = "info", -- on‑screen notifications
+}
 ```
 
-Another option would be to connect to the devcontainer following the **How to
-use?** section. Once connected to the devcontainer, execute:
+> Looking for defaults in code? See `:h devcontainer-cli.nvim` (or the README source) for the authoritative list of options.
 
-```bash
-make test
+---
+
+## Keymap examples
+
+A few practical bindings you can drop into your config (shown with **lazy.nvim** `keys` style but plain `vim.keymap.set` works too):
+
+```lua
+{
+  keys = {
+    { "<leader>Du", ":DevcontainerUp<CR>", desc = "DevContainer: up" },
+    { "<leader>Dc", ":DevcontainerConnect<CR>", desc = "DevContainer: connect" },
+    { "<leader>Dd", ":DevcontainerDown<CR>", desc = "DevContainer: down" },
+    { "<leader>De", ":DevcontainerExec direction='vertical' size='40'<CR>", desc = "DevContainer: exec (vsplit)" },
+    { "<leader>Db", ":DevcontainerExec cmd='cd build && make'<CR>", desc = "DevContainer: build" },
+    { "<leader>Dt", ":DevcontainerExec cmd='cd build && make test' direction='horizontal'<CR>", desc = "DevContainer: test" },
+    { "<leader>DT", "<CMD>DevContainerToggle<CR>", desc = "DevContainer: toggle term" },
+  },
+}
 ```
 
-## FEATUREs (in order of priority)
+---
 
-1. [x] Capability to create and run a devcontainer using the [Devconatiner CLI](https://github.com/devcontainers/cli).
-2. [x] Capability to attach in a running devcontainer.
-3. [x] The floating window created during the devcontainer Up process
-       (`:DevcontainerUp<cr>`) is closed when the process finishes successfully.
-4. [x] [Give the possibility of defining custom dotfiles when setting up the devcontainer](https://github.com/erichlf/devcontainer-cli.nvim/issues/1)
-5. [x] Add unit tests using plenary.busted lua module.
-6. [x] Create a logger.
-7. [x] Convert bash scripts in lua code.
+## Dev Container template
+
+Use this minimal `devcontainer.json` as a starting point:
+
+```jsonc
+// .devcontainer/devcontainer.json
+{
+  "name": "my-app-dev",
+  // Use a base image with common dev tools
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
+
+  // Run your dotfiles or additional setup here too
+  "postCreateCommand": "echo 'ready'",
+
+  // Forward ports you care about
+  "forwardPorts": [3000, 8080],
+
+  // VS Code properties are ignored by Neovim, but harmless to keep
+  "customizations": {
+    "vscode": { "settings": {} }
+  }
+}
+```
+
+If you don’t have a `.devcontainer/` folder yet, create it and drop this file in.
+
+---
+
+## Troubleshooting
+
+**`devcontainer: command not found`**
+Install the Dev Container CLI and ensure it is in `$PATH`. For example: `npm i -g @devcontainers/cli`.
+
+**`Cannot connect to the Docker daemon` / permission errors**
+Make sure Docker Desktop / daemon is running. On Linux, your user may need to be in the `docker` group (re‑login after adding).
+
+**I want faster start‑ups**
+Set `remove_existing_container = false` to reuse the previous container and rely on image caching where possible.
+
+**The terminal disappears after `:DevcontainerUp`**
+That’s by design when the process finishes successfully. Re‑open it with `:DevContainerToggle` if you want to inspect the log.
+
+**How do I toggle the terminal while a task runs?**
+Press `t` in normal mode during a running task to hide the window; `:DevContainerToggle` brings it back.
+
+---
+
+## FAQ
+
+**Do I have to run Neovim *inside* the container?**
+No. You can either keep Neovim on the host and use `:DevcontainerExec`, or connect and run Neovim inside the container with `:DevcontainerConnect`—whichever matches your workflow.
+
+**How is this different from other plugins?**
+This plugin focuses on using the official Dev Container CLI and avoids imposing opinions. Similar projects include `esensar/nvim-dev-container` and `arnaupv/nvim-devcontainer-cli`; if you prefer a different model (e.g., host Neovim + remote LSP servers), compare approaches and pick what suits you.
+
+**Where should I keep my dotfiles?**
+Point `dotfiles_repository` to any repo. The plugin will clone that repo into the container and run your setup script (`dotfiles_intallCommand`).
+
+---
+
+## Credits
+
+Inspired by the work of @arnaupv, @esensar, and @jamestthompson3. Big thanks to the Dev Containers team for the CLI and spec.
+
+---
+
+## License
+
+MIT — see [`LICENSE`](./LICENSE).
+
+[`devcontainer` CLI]: https://github.com/devcontainers/cli
