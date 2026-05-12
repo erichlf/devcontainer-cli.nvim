@@ -235,7 +235,7 @@ function M.create_connect_cmd()
             elseif vim.fn.executable("wezterm") == 1 then
               connect_command = { "wezterm cli split-pane --right --cwd . -- bash -c" }
               dev_command = "\"" .. dev_command .. "\""
-            elseif vim.fn.executable("allacrity") == 1 then
+            elseif vim.fn.executable("alacritty") == 1 then
               connect_command = { "alacritty --working-directory . --title \"Devcontainer\" -e" }
             elseif vim.fn.executable("gnome-terminal") == 1 then
               connect_command = { "gnome-terminal --" }
