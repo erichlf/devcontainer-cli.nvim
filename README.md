@@ -128,7 +128,7 @@ Call `require("devcontainer-cli").setup({ ... })` with any of the following opti
   dotfiles_repository = "https://github.com/erichlf/dotfiles.git",
   dotfiles_branch = "devcontainer-cli",
   dotfiles_targetPath = "~/dotfiles",
-  dotfiles_install_command = "install.sh",
+  dotfiles_install_command = nil, -- Let the Dev Container CLI pick a default
 
   -- Shell used when executing commands
   shell = "bash",
@@ -222,7 +222,7 @@ No. You can either keep Neovim on the host and use `:DevcontainerExec`, or conne
 This plugin focuses on using the official Dev Container CLI and avoids imposing opinions. Similar projects include `esensar/nvim-dev-container` and `arnaupv/nvim-devcontainer-cli`; if you prefer a different model (e.g., host Neovim + remote LSP servers), compare approaches and pick what suits you.
 
 **Where should I keep my dotfiles?**
-Point `dotfiles_repository` to any repo. The plugin will clone that repo into the container and run your setup script (`dotfiles_install_command`).
+Point `dotfiles_repository` to any repo. The plugin will clone that repo into the container and run the configured setup script (`dotfiles_install_command`).
 
 ---
 
