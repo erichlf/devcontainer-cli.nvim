@@ -39,7 +39,7 @@ local default_config = {
   dotfiles_targetPath = "~/dotfiles",
   -- command that's executed for installed the dependencies from the
   -- setup_environment_repo
-  dotfiles_installCommand = "install.sh",
+  -- dotfiles_install_command = "install.sh", -- Let the devcontainer CLI choose
   -- The number of columns to wrap text at
   terminal_columns = 80,
   -- The particular binary to use for connecting to in the devcontainer
