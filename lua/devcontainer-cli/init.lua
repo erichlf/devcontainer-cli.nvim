@@ -78,6 +78,15 @@ function M.setup(opts)
     }
   )
 
+  vim.api.nvim_create_user_command(
+    "DevcontainerSelectConfig",
+    devcontainer_cli.select_config,
+    {
+      nargs = 0,
+      desc = "Select which devcontainer config to use.",
+    }
+  )
+
   log.debug("Finished setting up devcontainer-cli")
 end
 

@@ -104,8 +104,34 @@ Using **lazy.nvim**:
   - Execute a command in the running container. If `cmd` is omitted, you’ll be prompted. Common patterns: build, test, codegen.
 - `:DevcontainerDown`
   - Stop and remove the container (see `remove_existing_container` if you want to always start clean).
+- `:DevcontainerSelectConfig`
+  - On the host, pick which `devcontainer.json` subsequent plugin commands should use. It does not switch the container of an existing Neovim process.
 - `:DevContainerToggle`
   - Toggle the last devcontainer terminal window.
+
+---
+
+## Multiple dev container configs
+
+A project may define more than one config, for example:
+
+```text
+.devcontainer/devcontainer.json
+.devcontainer/gpu/devcontainer.json
+.devcontainer/cpu/devcontainer.json
+```
+
+The first command you run on the host (`:DevcontainerUp`, `:DevcontainerExec`, …) asks you to pick one, listing each config's `name` alongside its path. That choice is reused for the rest of that host Neovim session; use `:DevcontainerSelectConfig` to change the config used by subsequent commands, or set `reuse_fixed_path = false` to be asked every time.
+
+Selecting a config inside a devcontainer cannot move the current Neovim process to another container. To switch, return to the host Neovim, run `:DevcontainerSelectConfig`, then `:DevcontainerUp` and `:DevcontainerConnect`.
+
+To skip the prompt altogether, pin a config (path relative to the workspace folder, or absolute):
+
+```lua
+require("devcontainer-cli").setup({
+  fixed_devcontainer_json_path = ".devcontainer/gpu/devcontainer.json",
+})
+```
 
 ---
 
@@ -120,6 +146,13 @@ Call `require("devcontainer-cli").setup({ ... })` with any of the following opti
 
   -- Search upwards and use the nearest `.devcontainer/` folder
   toplevel = true,
+
+  -- Pin a specific devcontainer.json (relative to the workspace folder, or
+  -- absolute). When nil, you are asked to pick one if the project has several
+  fixed_devcontainer_json_path = nil,
+
+  -- Reuse the config you picked instead of asking again on every command
+  reuse_fixed_path = true,
 
   -- Start from scratch each `DevcontainerUp` (slower but clean)
   remove_existing_container = true,

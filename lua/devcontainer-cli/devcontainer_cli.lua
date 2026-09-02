@@ -19,7 +19,6 @@
 -- SOFTWARE.
 local utils    = require("devcontainer-cli.devcontainer_utils")
 local terminal = require("devcontainer-cli.terminal")
-local log      = require("devcontainer-cli.log")
 
 local M        = {}
 
@@ -61,15 +60,23 @@ function M.up()
   utils.bringup()
 end
 
+-- choose which devcontainer config to use when the project has several
+function M.select_config()
+  utils.select_config()
+end
+
 -- Thanks to the autocommand executed after leaving the UI, after closing the
 -- neovim window the devcontainer will be automatically open in a new terminal
 function M.connect()
-  if not utils.create_connect_cmd() then
-    log.error("Failed to create autocommand")
-    return
-  end
-
-  vim.cmd("wqa")
+  utils.create_connect_cmd(
+    function()
+      vim.schedule(
+        function()
+          vim.cmd("wqa")
+        end
+      )
+    end
+  )
 end
 
 -- kill the current running docker container associated with the current project

@@ -89,32 +89,113 @@ function M.parse(args)
   return result
 end
 
+---@class Workspace
+---@field root string the workspace folder handed to the devcontainer cli
+---@field config string the absolute path of the devcontainer.json to use
+
+-- the devcontainer config that was last selected, keyed by workspace folder
+local _selected_configs = {}
+
+-- determine which devcontainer config should be used, asking the user to pick
+-- one whenever the workspace contains more than a single config
+---@param callback (function) called with the resolved Workspace, and not called
+-- at all when nothing could be resolved
+---@param force_select (boolean|nil) prompt even if a config was already selected
+local function _resolve_workspace(callback, force_select)
+  local root = folder_utils.get_root(config.toplevel)
+  if root == nil then
+    log.error("unable to find devcontainer directory...")
+    return
+  end
+
+  local fixed_devcontainer_json_path = config.fixed_devcontainer_json_path
+  if fixed_devcontainer_json_path ~= nil and fixed_devcontainer_json_path ~= "" then
+    local path = vim.startswith(fixed_devcontainer_json_path, "/") and fixed_devcontainer_json_path or
+        (root .. "/" .. fixed_devcontainer_json_path)
+    if vim.fn.filereadable(path) ~= 1 then
+      log.error("configured devcontainer config '" .. path .. "' does not exist...")
+      return
+    end
+
+    callback({ root = root, config = path })
+    return
+  end
+
+  local configs = folder_utils.get_configs(root)
+  if #configs == 0 then
+    log.error("unable to find a devcontainer.json in '" .. root .. "'...")
+    return
+  end
+
+  if not force_select then
+    local selected = _selected_configs[root]
+    if config.reuse_fixed_path and selected ~= nil and vim.tbl_contains(configs, selected) then
+      callback({ root = root, config = selected })
+      return
+    end
+
+    if #configs == 1 then
+      _selected_configs[root] = configs[1]
+      callback({ root = root, config = configs[1] })
+      return
+    end
+  end
+
+  vim.ui.select(
+    configs,
+    {
+      prompt = "Select a devcontainer config:",
+      format_item = function(item)
+        local relative = item:sub(#root + 2)
+        local name = folder_utils.get_config_name(item)
+        if name == nil then
+          return relative
+        end
+
+        return name .. " (" .. relative .. ")"
+      end,
+    },
+    function(choice)
+      if choice == nil then
+        log.info("no devcontainer config selected, ignoring.")
+        return
+      end
+
+      _selected_configs[root] = choice
+      callback({ root = root, config = choice })
+    end
+  )
+end
+
 -- build the initial part of a devcontainer command
 ---@param action (string) the action for the devcontainer to perform
 -- (see man devcontainer)
----@return (string|nil) nil if no devcontainer_parent could be found otherwise
--- the basic devcontainer command for the given type
-local function _devcontainer_command(action)
-  local devcontainer_root = folder_utils.get_root(config.toplevel)
-  if devcontainer_root == nil then
-    log.error("unable to find devcontainer directory...")
-    return nil
-  end
-
+---@param workspace (Workspace) the workspace folder and config to act on
+---@return (string) the basic devcontainer command for the given action
+local function _devcontainer_command(action, workspace)
   local command = "devcontainer " .. action
-  command = command .. " --workspace-folder '" .. devcontainer_root .. "'"
+  command = command .. " --workspace-folder " .. vim.fn.shellescape(workspace.root)
+  command = command .. " --config " .. vim.fn.shellescape(workspace.config)
+  command = command .. " --id-label " .. vim.fn.shellescape("devcontainer.config_file=" .. workspace.config)
 
   return command
 end
 
+-- prompt the user for the devcontainer config to use from now on
+function M.select_config()
+  _resolve_workspace(
+    function(workspace)
+      log.info("using devcontainer config: " .. workspace.config)
+    end,
+    true
+  )
+end
+
 -- helper function to generate devcontainer bringup command
----@return (string|nil) nil if no devcontainer_parent could be found otherwise the
--- devcontainer bringup command
-local function _get_devcontainer_up_cmd()
-  local command = _devcontainer_command("up")
-  if command == nil then
-    return command
-  end
+---@param workspace (Workspace) the workspace folder and config to bring up
+---@return (string) the devcontainer bringup command
+local function _get_devcontainer_up_cmd(workspace)
+  local command = _devcontainer_command("up", workspace)
 
   if config.remove_existing_container then
     command = command .. " --remove-existing-container"
@@ -145,31 +226,31 @@ end
 
 -- issues command to bringup devcontainer
 function M.bringup()
-  local command = _get_devcontainer_up_cmd()
+  _resolve_workspace(
+    function(workspace)
+      local command = _get_devcontainer_up_cmd(workspace)
 
-  if command == nil then
-    return
-  end
-
-  if config.interactive then
-    vim.ui.input(
-      {
-        prompt = _wrap_text(
-          "Spawning devcontainer with command: " .. command
-        ) .. "\n\n" .. "Press q to cancel or any other key to continue\n"
-      },
-      function(input)
-        if (input == "q" or input == "Q") then
-          log.info("\nUser cancelled bringing up devcontainer")
-        else
-          terminal.spawn(command)
-        end
+      if config.interactive then
+        vim.ui.input(
+          {
+            prompt = _wrap_text(
+              "Spawning devcontainer with command: " .. command
+            ) .. "\n\n" .. "Press q to cancel or any other key to continue\n"
+          },
+          function(input)
+            if (input == "q" or input == "Q") then
+              log.info("\nUser cancelled bringing up devcontainer")
+            else
+              terminal.spawn(command)
+            end
+          end
+        )
+        return
       end
-    )
-    return
-  end
 
-  terminal.spawn(command)
+      terminal.spawn(command)
+    end
+  )
 end
 
 -- execute the given cmd within the given devcontainer_parent
@@ -177,14 +258,14 @@ end
 ---@param direction (string|nil) the placement of the window to be created
 -- (left, right, bottom, float)
 function M._exec_cmd(cmd, direction, size)
-  local command = _devcontainer_command("exec")
-  if command == nil then
-    return
-  end
-
-  command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
-  log.info(command)
-  terminal.spawn(command, direction, size)
+  _resolve_workspace(
+    function(workspace)
+      local command = _devcontainer_command("exec", workspace)
+      command = command .. " " .. config.shell .. " -c '" .. cmd .. "'"
+      log.info(command)
+      terminal.spawn(command, direction, size)
+    end
+  )
 end
 
 -- execute a given cmd within the given devcontainer_parent
@@ -215,23 +296,22 @@ function M.exec(cmd, direction, size)
 end
 
 -- create the necessary functions needed to connect to nvim in a devcontainer
-function M.create_connect_cmd()
-  local au_id = vim.api.nvim_create_augroup("devcontainer-cli.connect", {})
-  local dev_command = _devcontainer_command("exec")
-  if dev_command == nil then
-    return false
-  end
-  dev_command = dev_command .. " " .. config.nvim_binary
+---@param on_created (function) called once the autocommand has been created
+function M.create_connect_cmd(on_created)
+  _resolve_workspace(
+    function(workspace)
+      local au_id = vim.api.nvim_create_augroup("devcontainer-cli.connect", {})
+      local dev_command = _devcontainer_command("exec", workspace) .. " " .. config.nvim_binary
 
-  vim.api.nvim_create_autocmd(
-    "UILeave",
-    {
-      group = au_id,
-      callback =
-          function()
+      vim.api.nvim_create_autocmd(
+        "UILeave",
+        {
+          group = au_id,
+          callback = function()
             local connect_command = {}
             if vim.env.TMUX ~= nil then
               connect_command = { "tmux split-window -h -t \"$TMUX_PANE\"" }
+              dev_command = vim.fn.shellescape(dev_command)
             elseif vim.fn.executable("wezterm") == 1 then
               connect_command = { "wezterm cli split-pane --right --cwd . -- bash -c" }
               dev_command = "\"" .. dev_command .. "\""
@@ -245,7 +325,7 @@ function M.create_connect_cmd()
               connect_command = { "Terminal.app" }
             else
               log.error("no supported terminal emulator found.")
-              return false
+              return
             end
 
             table.insert(connect_command, dev_command)
@@ -256,34 +336,34 @@ function M.create_connect_cmd()
               end
             )
           end
-    }
-  )
+        }
+      )
 
-  return true
+      on_created()
+    end
+  )
 end
 
 -- issues command to down devcontainer
 function M.down()
-  local workspace = folder_utils.get_root(config.toplevel)
-  if workspace == nil then
-    log.error("Couldn't determine project root")
-    return
-  end
+  _resolve_workspace(
+    function(workspace)
+      local tag = vim.fn.shellescape("label=devcontainer.config_file=" .. workspace.config)
+      local command = "docker ps -q -a --filter " .. tag
+      log.debug("Attempting to get pid of devcontainer using command: " .. command)
+      local result = vim.fn.systemlist(command)
 
-  local tag = workspace .. "/.devcontainer/devcontainer.json"
-  local command = "docker ps -q -a --filter label=devcontainer.config_file=" .. tag
-  log.debug("Attempting to get pid of devcontainer using command: " .. command)
-  local result = vim.fn.systemlist(command)
+      if #result == 0 then
+        log.warn("Couldn't find devcontainer to kill")
+        return
+      end
 
-  if #result == 0 then
-    log.warn("Couldn't find devcontainer to kill")
-    return
-  end
-
-  local pid = result[1]
-  command = "docker kill " .. pid
-  log.info("Killing docker container with pid: " .. pid)
-  terminal.spawn(command)
+      local pid = result[1]
+      command = "docker kill " .. pid
+      log.info("Killing docker container with pid: " .. pid)
+      terminal.spawn(command)
+    end
+  )
 end
 
 return M

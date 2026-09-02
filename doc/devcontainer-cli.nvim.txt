@@ -29,4 +29,19 @@ DevcontainerConnect                                        *DevcontainerConnect*
 
 DevcontainerDown                                              *DevcontainerDown*
     Stops and removes the devcontainer associated with the current project.
+
+DevcontainerSelectConfig                              *DevcontainerSelectConfig*
+    On the host, choose which devcontainer.json subsequent DevcontainerUp,
+    DevcontainerExec, DevcontainerConnect and DevcontainerDown commands should
+    use. This does not change the container in which nvim is currently running.
+    To switch containers, return to the host nvim, select another config, run
+    DevcontainerUp and then DevcontainerConnect.
+
+    When a project contains several configs (`.devcontainer/devcontainer.json`,
+    `.devcontainer.json` and/or `.devcontainer/<name>/devcontainer.json`) the
+    other commands prompt for one the first time they are used and remember that
+    choice in the current host nvim session.
+
+    Set `fixed_devcontainer_json_path` to pin a config and skip the prompt, or
+    `reuse_fixed_path = false` to be asked on every command.
 ================================================================================

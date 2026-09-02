@@ -24,6 +24,13 @@ local default_config = {
   interactive = false,
   -- use the .devcontainer directory closest to root in the directory tree
   toplevel = true,
+  -- path of the devcontainer.json to use, either absolute or relative to the
+  -- workspace folder, e.g. ".devcontainer/gpu/devcontainer.json". When unset
+  -- and the workspace holds more than one, you are asked to pick one
+  fixed_devcontainer_json_path = nil,
+  -- reuse the devcontainer.json you picked for a workspace for the rest of the
+  -- nvim session instead of asking again on every command
+  reuse_fixed_path = true,
   -- Folder where the nvim-devcontainer-cli is installed
   nvim_plugin_folder = file_path:gsub("init.lua", "") .. "../../../",
   -- Remove existing container each time DevcontainerUp is executed
